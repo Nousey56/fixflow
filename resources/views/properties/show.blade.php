@@ -98,6 +98,69 @@
             text-decoration: none;
         }
 
+        .property-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .property-actions form {
+            margin: 0;
+        }
+
+        .archive-button,
+        .restore-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 12px 20px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 650;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .archive-button {
+            background: #ffffff;
+            color: #a33b27;
+            border: 1px solid #e8c8c1;
+        }
+
+        .archive-button:hover {
+            background: #fff2ef;
+        }
+
+        .restore-button {
+            background: #0071e3;
+            color: #ffffff;
+            border: 1px solid #0071e3;
+        }
+
+        .restore-button:hover {
+            background: #0077ed;
+        }
+
+        .archive-notice {
+            margin: 24px 0;
+            padding: 18px 22px;
+            background: #fff8e8;
+            border: 1px solid #f0ddb4;
+            border-radius: 16px;
+            color: #6f531f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .archive-notice strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -267,7 +330,11 @@
                 gap: 18px;
             }
 
-            .edit-property-button {
+            .property-actions,
+            .property-actions form,
+            .edit-property-button,
+            .archive-button,
+            .restore-button {
                 width: 100%;
             }
 
@@ -325,18 +392,51 @@
 
             </div>
 
-            <a
-                href="{{ route('properties.edit', $property) }}"
-                class="edit-property-button"
-            >
-                Edit Property →
-            </a>
+            <div class="property-actions">
+                @if ($property->isArchived())
+                    <form method="POST" action="{{ route('properties.restore', $property) }}">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="restore-button">
+                            Restore Property
+                        </button>
+                    </form>
+                @else
+                    <a
+                        href="{{ route('properties.edit', $property) }}"
+                        class="edit-property-button"
+                    >
+                        Edit Property →
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{{ route('properties.archive', $property) }}"
+                        onsubmit="return confirm('Archive this property? Its units and maintenance history will be preserved.');"
+                    >
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="archive-button">
+                            Archive Property
+                        </button>
+                    </form>
+                @endif
+            </div>
 
         </div>
 
         @if (session('success'))
             <div class="success" role="status">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        @if ($property->isArchived())
+            <div class="archive-notice" role="status">
+                <strong>This property is archived.</strong>
+                Archived on {{ $property->archived_at->format('F j, Y') }}.
+                Its units and maintenance history remain available for reference.
+                Restore the property before making changes.
             </div>
         @endif
 
@@ -381,13 +481,15 @@
 
             <h2>Units and maintenance</h2>
 
-            <a
-                href="{{ route('units.create', $property) }}"
-                class="add-button"
-            >
-                <span class="add-icon" aria-hidden="true">+</span>
-                Add Unit
-            </a>
+            @unless ($property->isArchived())
+                <a
+                    href="{{ route('units.create', $property) }}"
+                    class="add-button"
+                >
+                    <span class="add-icon" aria-hidden="true">+</span>
+                    Add Unit
+                </a>
+            @endunless
 
         </div>
 
@@ -395,7 +497,9 @@
 
             <div class="unit muted">
                 No units have been added to this property.
-                Use the Add Unit button above to create one.
+                @if (! $property->isArchived())
+                    Use the Add Unit button above to create one.
+                @endif
             </div>
 
         @else
@@ -431,13 +535,15 @@
 
                             </div>
 
-                            <a
-                                href="{{ route('units.edit', [$property, $unit]) }}"
-                                class="edit-button"
-                                aria-label="Edit Unit {{ $unit->unit_number }}"
-                            >
-                                Edit Unit →
-                            </a>
+                            @unless ($property->isArchived())
+                                <a
+                                    href="{{ route('units.edit', [$property, $unit]) }}"
+                                    class="edit-button"
+                                    aria-label="Edit Unit {{ $unit->unit_number }}"
+                                >
+                                    Edit Unit →
+                                </a>
+                            @endunless
 
                         </div>
 

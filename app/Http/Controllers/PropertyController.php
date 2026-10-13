@@ -52,9 +52,7 @@ class PropertyController extends Controller
     /**
      * Shared validation for property details.
      *
-     * Company ownership is deliberately excluded
-     * from editing to prevent accidental transfers
-     * between companies.
+     * Company ownership cannot be changed here.
      */
     private function propertyRules(): array
     {
@@ -88,7 +86,13 @@ class PropertyController extends Controller
     }
 
     /**
-     * Display properties with optional search.
+     * Display active or archived properties.
+     *
+     * Supported filters:
+     * ?status=active
+     * ?status=archived
+     *
+     * Search works with either filter.
      */
     public function index(Request $request)
     {
@@ -100,10 +104,28 @@ class PropertyController extends Controller
             'Only administrators and managers can view properties.'
         );
 
-        $search = trim((string) $request->query('search', ''));
+        $validated = $request->validate([
+            'search' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'status' => [
+                'nullable',
+                Rule::in(['active', 'archived']),
+            ],
+        ]);
+
+        $search = trim($validated['search'] ?? '');
+        $status = $validated['status'] ?? 'active';
 
         $properties = Property::query()
             ->whereIn('company_id', $companyIds)
+            ->when(
+                $status === 'archived',
+                fn ($query) => $query->archived(),
+                fn ($query) => $query->active()
+            )
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('name', 'like', '%' . $search . '%')
@@ -122,11 +144,14 @@ class PropertyController extends Controller
                         'maintenance_requests.unit_id',
                         '=',
                         'units.id'
-                    )->whereIn('maintenance_requests.status', [
-                        'open',
-                        'assigned',
-                        'in_progress',
-                    ]);
+                    )->whereIn(
+                        'maintenance_requests.status',
+                        [
+                            'open',
+                            'assigned',
+                            'in_progress',
+                        ]
+                    );
                 },
                 'units as completed_requests_count' => function ($query) {
                     $query->join(
@@ -143,9 +168,22 @@ class PropertyController extends Controller
             ->orderBy('name')
             ->get();
 
+        $activeCount = Property::query()
+            ->whereIn('company_id', $companyIds)
+            ->active()
+            ->count();
+
+        $archivedCount = Property::query()
+            ->whereIn('company_id', $companyIds)
+            ->archived()
+            ->count();
+
         return view('properties.index', [
             'properties' => $properties,
             'search' => $search,
+            'status' => $status,
+            'activeCount' => $activeCount,
+            'archivedCount' => $archivedCount,
         ]);
     }
 
@@ -210,6 +248,9 @@ class PropertyController extends Controller
 
     /**
      * Display a single property and its units.
+     *
+     * Archived properties remain accessible
+     * to authorized managers for recordkeeping.
      */
     public function show(
         Request $request,
@@ -236,6 +277,12 @@ class PropertyController extends Controller
     ) {
         $this->authorizeProperty($request, $property);
 
+        abort_if(
+            $property->isArchived(),
+            409,
+            'Restore this property before editing it.'
+        );
+
         $property->load('company');
 
         return view('properties.edit', [
@@ -244,13 +291,19 @@ class PropertyController extends Controller
     }
 
     /**
-     * Validate and update an existing property.
+     * Validate and update an active property.
      */
     public function update(
         Request $request,
         Property $property
     ) {
         $this->authorizeProperty($request, $property);
+
+        abort_if(
+            $property->isArchived(),
+            409,
+            'Restore this property before editing it.'
+        );
 
         $validated = $request->validate(
             $this->propertyRules()
@@ -263,6 +316,66 @@ class PropertyController extends Controller
             ->with(
                 'success',
                 'Property information updated successfully.'
+            );
+    }
+
+    /**
+     * Archive an active property.
+     *
+     * No units or maintenance records are deleted.
+     */
+    public function archive(
+        Request $request,
+        Property $property
+    ) {
+        $this->authorizeProperty($request, $property);
+
+        if ($property->isArchived()) {
+            return redirect()
+                ->route('properties.show', $property)
+                ->with(
+                    'success',
+                    'This property is already archived.'
+                );
+        }
+
+        $property->archive();
+
+        return redirect()
+            ->route('properties.index', [
+                'status' => 'archived',
+            ])
+            ->with(
+                'success',
+                'Property archived successfully. All units and maintenance history have been preserved.'
+            );
+    }
+
+    /**
+     * Restore an archived property.
+     */
+    public function restore(
+        Request $request,
+        Property $property
+    ) {
+        $this->authorizeProperty($request, $property);
+
+        if (! $property->isArchived()) {
+            return redirect()
+                ->route('properties.show', $property)
+                ->with(
+                    'success',
+                    'This property is already active.'
+                );
+        }
+
+        $property->restoreFromArchive();
+
+        return redirect()
+            ->route('properties.show', $property)
+            ->with(
+                'success',
+                'Property restored successfully.'
             );
     }
 }

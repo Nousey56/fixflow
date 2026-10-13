@@ -10,12 +10,6 @@ use App\Http\Controllers\JobWorkflowController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\UnitController;
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -28,28 +22,14 @@ Route::post('/login', [LoginController::class, 'login'])
     ->middleware('guest')
     ->name('login.submit');
 
-/*
-|--------------------------------------------------------------------------
-| Protected Routes
-|--------------------------------------------------------------------------
-*/
-
 Route::middleware('auth')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Authentication
-    |--------------------------------------------------------------------------
-    */
+    // Authentication
 
     Route::post('/logout', [LoginController::class, 'logout'])
         ->name('logout');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Maintenance Requests
-    |--------------------------------------------------------------------------
-    */
+    // Maintenance Requests
 
     Route::get('/maintenance', [MaintenanceRequestController::class, 'index'])
         ->name('maintenance.index');
@@ -66,11 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/maintenance/{maintenanceRequest}', [MaintenanceRequestController::class, 'update'])
         ->name('maintenance.update');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Team Management
-    |--------------------------------------------------------------------------
-    */
+    // Team Management
 
     Route::get('/team', [TeamController::class, 'index'])
         ->name('team.index');
@@ -84,11 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/team/{membership}', [TeamController::class, 'destroy'])
         ->name('team.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Technician Dashboard
-    |--------------------------------------------------------------------------
-    */
+    // Technician Dashboard
 
     Route::get('/technician', [TechnicianDashboardController::class, 'index'])
         ->name('technician.index');
@@ -99,11 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/technician/jobs/{maintenanceRequest}/complete', [JobWorkflowController::class, 'complete'])
         ->name('technician.jobs.complete');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Property Management
-    |--------------------------------------------------------------------------
-    */
+    // Property Management
 
     Route::get('/properties', [PropertyController::class, 'index'])
         ->name('properties.index');
@@ -114,23 +82,21 @@ Route::middleware('auth')->group(function () {
     Route::post('/properties', [PropertyController::class, 'store'])
         ->name('properties.store');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Edit Property
-    |--------------------------------------------------------------------------
-    */
-
     Route::get('/properties/{property}/edit', [PropertyController::class, 'edit'])
         ->name('properties.edit');
 
     Route::patch('/properties/{property}', [PropertyController::class, 'update'])
         ->name('properties.update');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Unit Management
-    |--------------------------------------------------------------------------
-    */
+    // Property Archiving and Restoration
+
+    Route::patch('/properties/{property}/archive', [PropertyController::class, 'archive'])
+        ->name('properties.archive');
+
+    Route::patch('/properties/{property}/restore', [PropertyController::class, 'restore'])
+        ->name('properties.restore');
+
+    // Unit Management
 
     Route::get('/properties/{property}/units/create', [UnitController::class, 'create'])
         ->name('units.create');
@@ -138,25 +104,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/properties/{property}/units', [UnitController::class, 'store'])
         ->name('units.store');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Edit Unit
-    |--------------------------------------------------------------------------
-    */
-
     Route::get('/properties/{property}/units/{unit}/edit', [UnitController::class, 'edit'])
         ->name('units.edit');
 
     Route::patch('/properties/{property}/units/{unit}', [UnitController::class, 'update'])
         ->name('units.update');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Property Details
-    |--------------------------------------------------------------------------
-    */
+    // Property Details
 
     Route::get('/properties/{property}', [PropertyController::class, 'show'])
         ->name('properties.show');
-
 });

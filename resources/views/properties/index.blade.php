@@ -50,11 +50,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .page-heading {
-            min-width: 0;
+            margin-bottom: 30px;
         }
 
         h1 {
@@ -63,14 +59,15 @@
             margin: 12px 0;
         }
 
-        p.sub {
+        .sub {
             color: #6e6e73;
             margin: 0;
             font-size: 15px;
             line-height: 1.6;
         }
 
-        .add-button {
+        .add-button,
+        .button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -78,24 +75,64 @@
             background: #0071e3;
             color: #ffffff;
             border-radius: 999px;
-            padding: 14px 22px;
+            padding: 13px 21px;
+            font-size: 14px;
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .add-button:hover,
+        .button:hover {
+            background: #0077ed;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .add-button {
+            white-space: nowrap;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding: 6px;
+            width: fit-content;
+            max-width: 100%;
+            background: #e8e8ed;
+            border-radius: 16px;
+        }
+
+        .tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            color: #6e6e73;
             font-size: 14px;
             font-weight: 650;
             white-space: nowrap;
-            flex-shrink: 0;
-            transition: background .2s, transform .2s;
         }
 
-        .add-button:hover {
-            background: #0077ed;
+        .tab:hover {
+            color: #1d1d1f;
             text-decoration: none;
-            transform: translateY(-1px);
         }
 
-        .add-icon {
-            font-size: 19px;
-            line-height: 1;
-            font-weight: 400;
+        .tab.active {
+            background: #ffffff;
+            color: #1d1d1f;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+        }
+
+        .tab-count {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #f5f5f7;
+            border-radius: 999px;
+            font-size: 12px;
         }
 
         .search-panel {
@@ -115,38 +152,20 @@
 
         .search-form {
             display: flex;
-            align-items: stretch;
             gap: 12px;
         }
 
-        .search-input-wrap {
-            position: relative;
+        .search-input {
             flex: 1;
             min-width: 0;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 17px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #86868b;
-            font-size: 20px;
-            pointer-events: none;
-        }
-
-        .search-input {
-            display: block;
-            width: 100%;
             min-height: 50px;
-            padding: 13px 16px 13px 48px;
+            padding: 13px 16px;
             border: 1px solid #d2d2d7;
             border-radius: 13px;
             background: #ffffff;
             color: #1d1d1f;
             font: inherit;
             font-size: 15px;
-            transition: border-color .2s, box-shadow .2s;
         }
 
         .search-input:focus {
@@ -155,14 +174,10 @@
             box-shadow: 0 0 0 4px rgba(0, 113, 227, .12);
         }
 
-        .search-input::placeholder {
-            color: #86868b;
-        }
-
         .search-button {
             min-height: 50px;
             padding: 12px 25px;
-            border: none;
+            border: 0;
             border-radius: 13px;
             background: #0071e3;
             color: #ffffff;
@@ -170,7 +185,6 @@
             font-size: 14px;
             font-weight: 650;
             cursor: pointer;
-            transition: background .2s;
         }
 
         .search-button:hover {
@@ -188,7 +202,6 @@
             color: #1d1d1f;
             font-size: 14px;
             font-weight: 650;
-            white-space: nowrap;
         }
 
         .clear-button:hover {
@@ -200,26 +213,6 @@
             color: #86868b;
             font-size: 12px;
             margin-top: 12px;
-            line-height: 1.5;
-        }
-
-        .results-heading {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .results-heading h2 {
-            font-size: 22px;
-            letter-spacing: -.025em;
-            margin: 0;
-        }
-
-        .results-count {
-            color: #6e6e73;
-            font-size: 13px;
         }
 
         .summary {
@@ -239,15 +232,34 @@
 
         .stat small,
         .metric small {
-            color: #6e6e73;
             display: block;
+            color: #6e6e73;
             font-size: 13px;
         }
 
         .stat strong {
-            font-size: 34px;
             display: block;
             margin-top: 12px;
+            font-size: 34px;
+        }
+
+        .results-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .results-heading h2 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: -.025em;
+        }
+
+        .results-count {
+            color: #6e6e73;
+            font-size: 13px;
         }
 
         .cards {
@@ -259,12 +271,40 @@
         .property {
             display: flex;
             flex-direction: column;
+            gap: 8px;
+        }
+
+        .property-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
         }
 
         .property h2 {
+            margin: 0;
             font-size: 24px;
             letter-spacing: -.025em;
-            margin: 0 0 7px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 650;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background: #e8f7ed;
+            color: #247a43;
+        }
+
+        .status-archived {
+            background: #f0f0f2;
+            color: #6e6e73;
         }
 
         .muted {
@@ -273,11 +313,17 @@
             line-height: 1.5;
         }
 
+        .archive-date {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #86868b;
+        }
+
         .metrics {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 12px;
-            margin: 24px 0;
+            margin: 20px 0;
         }
 
         .metric {
@@ -288,26 +334,14 @@
         }
 
         .metric strong {
-            font-size: 23px;
             display: block;
             margin-top: 7px;
+            font-size: 23px;
         }
 
-        .button {
-            display: inline-block;
-            align-self: flex-start;
+        .property-actions {
             margin-top: auto;
-            background: #0071e3;
-            color: #ffffff;
-            border-radius: 999px;
-            padding: 12px 19px;
-            font-size: 14px;
-            font-weight: 650;
-        }
-
-        .button:hover {
-            background: #0077ed;
-            text-decoration: none;
+            padding-top: 4px;
         }
 
         .empty {
@@ -329,20 +363,37 @@
             margin: 0 0 24px;
         }
 
-        .empty .button {
-            margin-top: 0;
+        .alert {
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            border: 1px solid #ccebd5;
+            background: #e8f7ed;
+            color: #247a43;
+            border-radius: 14px;
+            font-size: 14px;
         }
 
         @media (max-width: 700px) {
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 22px;
+            .container {
+                padding: 36px 20px 70px;
             }
 
-            .cards,
-            .summary {
-                grid-template-columns: 1fr;
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .add-button {
+                width: 100%;
+            }
+
+            .tabs {
+                width: 100%;
+            }
+
+            .tab {
+                flex: 1;
+                padding: 12px 10px;
             }
 
             .search-form {
@@ -354,10 +405,9 @@
                 width: 100%;
             }
 
-            .results-heading {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 6px;
+            .summary,
+            .cards {
+                grid-template-columns: 1fr;
             }
 
             .metrics {
@@ -368,12 +418,9 @@
                 padding: 11px;
             }
 
-            .container {
-                padding: 36px 20px 70px;
-            }
-
-            .add-button {
-                width: 100%;
+            .results-heading {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
@@ -390,33 +437,58 @@
         </div>
 
         <div class="page-header">
-
-            <div class="page-heading">
-
+            <div>
                 <h1>Your properties.</h1>
 
                 <p class="sub">
-                    View buildings, units, and maintenance activity
-                    across your companies.
+                    Manage buildings, units, maintenance activity,
+                    and archived properties across your companies.
                 </p>
-
             </div>
 
             <a
                 href="{{ route('properties.create') }}"
                 class="add-button"
             >
-                <span class="add-icon" aria-hidden="true">+</span>
+                <span aria-hidden="true">+</span>
                 Add Property
             </a>
-
         </div>
+
+        @if (session('success'))
+            <div class="alert" role="status">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Active / Archived Tabs -->
+        <nav class="tabs" aria-label="Property status">
+
+            <a
+                href="{{ route('properties.index', ['status' => 'active']) }}"
+                class="tab {{ $status === 'active' ? 'active' : '' }}"
+                @if ($status === 'active') aria-current="page" @endif
+            >
+                Active
+                <span class="tab-count">{{ $activeCount }}</span>
+            </a>
+
+            <a
+                href="{{ route('properties.index', ['status' => 'archived']) }}"
+                class="tab {{ $status === 'archived' ? 'active' : '' }}"
+                @if ($status === 'archived') aria-current="page" @endif
+            >
+                Archived
+                <span class="tab-count">{{ $archivedCount }}</span>
+            </a>
+
+        </nav>
 
         <!-- Property Search -->
         <section class="search-panel">
 
             <label for="property-search" class="search-label">
-                Search properties
+                Search {{ $status }} properties
             </label>
 
             <form
@@ -425,123 +497,124 @@
                 class="search-form"
                 role="search"
             >
-
-                <div class="search-input-wrap">
-
-                    <span class="search-icon" aria-hidden="true">
-                        &#9906;
-                    </span>
-
-                    <input
-                        type="search"
-                        name="search"
-                        id="property-search"
-                        class="search-input"
-                        value="{{ $search ?? request('search', '') }}"
-                        placeholder="Search by name, address, city, state, or ZIP..."
-                        maxlength="255"
-                        autocomplete="off"
-                    >
-
-                </div>
-
-                <button
-                    type="submit"
-                    class="search-button"
+                <input
+                    type="hidden"
+                    name="status"
+                    value="{{ $status }}"
                 >
+
+                <input
+                    type="search"
+                    name="search"
+                    id="property-search"
+                    class="search-input"
+                    value="{{ $search }}"
+                    placeholder="Search by name, address, city, state, or ZIP..."
+                    maxlength="255"
+                    autocomplete="off"
+                >
+
+                <button type="submit" class="search-button">
                     Search
                 </button>
 
-                @if (filled($search ?? request('search')))
+                @if (filled($search))
                     <a
-                        href="{{ route('properties.index') }}"
+                        href="{{ route('properties.index', ['status' => $status]) }}"
                         class="clear-button"
                     >
                         Clear Search
                     </a>
                 @endif
-
             </form>
 
             <div class="search-hint">
-                Find properties by building name, street address,
-                city, state, or ZIP code.
+                Search within your {{ $status }} properties.
             </div>
 
         </section>
 
-        <!-- Dashboard Statistics -->
+        <!-- Summary Statistics -->
         <div class="summary">
 
             <div class="stat">
                 <small>
-                    {{ filled($search ?? '') ? 'Matching properties' : 'Properties' }}
+                    {{ filled($search) ? 'Matching properties' : ucfirst($status) . ' properties' }}
                 </small>
                 <strong>{{ $properties->count() }}</strong>
             </div>
 
             <div class="stat">
-                <small>
-                    {{ filled($search ?? '') ? 'Matching units' : 'Total units' }}
-                </small>
+                <small>Total units</small>
                 <strong>{{ $properties->sum('units_count') }}</strong>
             </div>
 
             <div class="stat">
-                <small>
-                    {{ filled($search ?? '') ? 'Matching active requests' : 'Active requests' }}
-                </small>
+                <small>Active requests</small>
                 <strong>{{ $properties->sum('active_requests_count') }}</strong>
             </div>
 
         </div>
 
+        <!-- Results -->
         <div class="results-heading">
 
             <h2>
-                {{ filled($search ?? '') ? 'Search results' : 'All properties' }}
+                {{ filled($search) ? 'Search results' : ucfirst($status) . ' properties' }}
             </h2>
 
             <span class="results-count">
                 {{ $properties->count() }}
                 {{ \Illuminate\Support\Str::plural('property', $properties->count()) }}
-                {{ filled($search ?? '') ? 'found' : 'available' }}
+                {{ filled($search) ? 'found' : 'available' }}
             </span>
 
         </div>
 
-        <!-- Property Cards -->
         @if ($properties->isEmpty())
 
             <div class="empty">
 
-                @if (filled($search ?? ''))
+                @if (filled($search))
 
                     <h2>No matching properties.</h2>
 
                     <p>
-                        We couldn't find any properties matching
-                        "{{ $search }}".
-                        Try a different name, address, city,
-                        state, or ZIP code.
+                        We couldn't find any {{ $status }} properties
+                        matching "{{ $search }}".
+                        Try another search.
                     </p>
 
                     <a
-                        href="{{ route('properties.index') }}"
+                        href="{{ route('properties.index', ['status' => $status]) }}"
                         class="button"
                     >
                         Clear Search →
                     </a>
 
-                @else
+                @elseif ($status === 'archived')
 
-                    <h2>No properties yet.</h2>
+                    <h2>No archived properties.</h2>
 
                     <p>
-                        You haven't added any properties for your
-                        active management memberships.
-                        Create your first property to start
-                        organizing buildings and units.
+                        Properties you archive will appear here.
+                        Their units and maintenance history will be preserved.
+                    </p>
+
+                    <a
+                        href="{{ route('properties.index', ['status' => 'active']) }}"
+                        class="button"
+                    >
+                        View Active Properties →
+                    </a>
+
+                @else
+
+                    <h2>No active properties yet.</h2>
+
+                    <p>
+                        Add your first property to begin managing
+                        buildings, units, and maintenance requests.
                     </p>
 
                     <a
@@ -563,9 +636,19 @@
 
                     <article class="property">
 
-                        <h2>
-                            {{ $property->name }}
-                        </h2>
+                        <div class="property-heading">
+                            <h2>{{ $property->name }}</h2>
+
+                            @if ($property->isArchived())
+                                <span class="status-badge status-archived">
+                                    Archived
+                                </span>
+                            @else
+                                <span class="status-badge status-active">
+                                    Active
+                                </span>
+                            @endif
+                        </div>
 
                         <div class="muted">
                             {{ $property->company?->name ?? 'Company' }}
@@ -582,37 +665,40 @@
                             }}
                         </div>
 
+                        @if ($property->isArchived())
+                            <div class="archive-date">
+                                Archived on
+                                {{ $property->archived_at->format('M j, Y') }}
+                            </div>
+                        @endif
+
                         <div class="metrics">
 
                             <div class="metric">
                                 <small>Units</small>
-                                <strong>
-                                    {{ $property->units_count }}
-                                </strong>
+                                <strong>{{ $property->units_count }}</strong>
                             </div>
 
                             <div class="metric">
                                 <small>Active</small>
-                                <strong>
-                                    {{ $property->active_requests_count }}
-                                </strong>
+                                <strong>{{ $property->active_requests_count }}</strong>
                             </div>
 
                             <div class="metric">
                                 <small>Completed</small>
-                                <strong>
-                                    {{ $property->completed_requests_count }}
-                                </strong>
+                                <strong>{{ $property->completed_requests_count }}</strong>
                             </div>
 
                         </div>
 
-                        <a
-                            class="button"
-                            href="{{ route('properties.show', $property) }}"
-                        >
-                            View Property →
-                        </a>
+                        <div class="property-actions">
+                            <a
+                                href="{{ route('properties.show', $property) }}"
+                                class="button"
+                            >
+                                View Property →
+                            </a>
+                        </div>
 
                     </article>
 
