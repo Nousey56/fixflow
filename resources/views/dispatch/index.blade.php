@@ -432,6 +432,50 @@
             overflow-wrap: anywhere;
         }
 
+        .success {
+            background: #e8f5e9;
+            color: #236b38;
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .assignment-panel {
+            margin-top: 18px;
+            padding: 18px;
+            background: #f5f5f7;
+            border-radius: 16px;
+        }
+
+        .assignment-panel h3 {
+            margin: 0 0 12px;
+            font-size: 15px;
+            letter-spacing: -.2px;
+        }
+
+        .assignment-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: end;
+            gap: 12px;
+        }
+
+        .assignment-controls .field {
+            flex: 1 1 240px;
+        }
+
+        .assignment-controls .button {
+            min-height: 45px;
+        }
+
+        .assignment-note {
+            margin: 10px 0 0;
+            color: #6e6e73;
+            font-size: 12px;
+        }
+
         .errors {
             background: #fff0f0;
             color: #b42318;
@@ -513,6 +557,12 @@
                 View All Requests →
             </a>
         </header>
+
+        @if (session('success'))
+            <div class="success" role="status">
+                {{ session('success') }}
+            </div>
+        @endif
 
         @if ($errors->any())
             <div class="errors" role="alert">
@@ -738,6 +788,45 @@
                             </div>
                         </div>
                     </div>
+
+                    @if (!in_array($job->status, ['completed', 'cancelled'], true))
+                        <div class="assignment-panel">
+                            <h3>Technician assignment</h3>
+                            <form method="POST" action="{{ route('maintenance.assignment.update', $job) }}">
+                                @csrf
+                                @method('PATCH')
+
+                                <div class="assignment-controls">
+                                    <div class="field">
+                                        <label for="assignment-{{ $job->id }}">Assigned technician</label>
+                                        <select
+                                            id="assignment-{{ $job->id }}"
+                                            name="technician_id"
+                                        >
+                                            <option value="">Unassigned</option>
+                                            @foreach ($technicians as $technician)
+                                                    <option
+                                                        value="{{ $technician->id }}"
+                                                        @selected((int) $job->assigned_to === (int) $technician->id)
+                                                    >
+                                                        {{ $technician->name }}
+                                                    </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="button">Save Assignment</button>
+                                </div>
+                                <p class="assignment-note">
+                                    Assignments are checked against this work order's company when saved.
+                                </p>
+                            </form>
+                        </div>
+                    @else
+                        <div class="assignment-panel">
+                            <h3>Technician assignment</h3>
+                            <p class="assignment-note">This work order is closed. Assignments cannot be changed.</p>
+                        </div>
+                    @endif
 
                     <div class="order-footer">
                         <span class="order-created">

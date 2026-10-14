@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MaintenanceRequestController;
 use App\Http\Controllers\WorkOrderScheduleController;
 use App\Http\Controllers\DispatchController;
+use App\Http\Controllers\WorkOrderAssignmentController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TechnicianDashboardController;
 use App\Http\Controllers\JobWorkflowController;
@@ -58,6 +59,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dispatch', [DispatchController::class, 'index'])
         ->name('dispatch.index');
+
+    // Direct Technician Assignment
+
+    Route::patch(
+        '/maintenance/{maintenanceRequest}/assignment',
+        [WorkOrderAssignmentController::class, 'update']
+    )->name('maintenance.assignment.update');
 
     // Team Management
 
