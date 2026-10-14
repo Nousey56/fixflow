@@ -207,6 +207,14 @@
                 </a>
 
                 <a
+                    href="{{ route('workload.index') }}"
+                    class="{{ request()->routeIs('workload.*') ? 'ff-active' : '' }}"
+                    @if (request()->routeIs('workload.*')) aria-current="page" @endif
+                >
+                    Workload
+                </a>
+
+                <a
                     href="{{ route('properties.index') }}"
                     class="{{ request()->routeIs('properties.*') ? 'ff-active' : '' }}"
                 >

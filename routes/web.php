@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MaintenanceCalendarController;
+use App\Http\Controllers\TechnicianWorkloadController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MaintenanceRequestController;
 use App\Http\Controllers\WorkOrderScheduleController;
@@ -26,7 +27,16 @@ Route::post('/login', [LoginController::class, 'login'])
     ->name('login.submit');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/calendar', [MaintenanceCalendarController::class, 'index'])->name('calendar.index');
+
+    // Maintenance Operations Calendar
+
+    Route::get('/calendar', [MaintenanceCalendarController::class, 'index'])
+        ->name('calendar.index');
+
+    // Technician Workload Management
+
+    Route::get('/workload', [TechnicianWorkloadController::class, 'index'])
+        ->name('workload.index');
 
     // Authentication
 
