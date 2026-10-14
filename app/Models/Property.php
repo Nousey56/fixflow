@@ -14,6 +14,7 @@ class Property extends Model
         'city',
         'state',
         'zip_code',
+        'archived_at',
     ];
 
     protected function casts(): array

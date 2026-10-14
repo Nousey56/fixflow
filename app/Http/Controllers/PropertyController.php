@@ -51,7 +51,6 @@ class PropertyController extends Controller
 
     /**
      * Shared validation for property details.
-     *
      * Company ownership cannot be changed here.
      */
     private function propertyRules(): array
@@ -87,11 +86,6 @@ class PropertyController extends Controller
 
     /**
      * Display active or archived properties.
-     *
-     * Supported filters:
-     * ?status=active
-     * ?status=archived
-     *
      * Search works with either filter.
      */
     public function index(Request $request)
@@ -248,7 +242,6 @@ class PropertyController extends Controller
 
     /**
      * Display a single property and its units.
-     *
      * Archived properties remain accessible
      * to authorized managers for recordkeeping.
      */
@@ -279,7 +272,7 @@ class PropertyController extends Controller
 
         abort_if(
             $property->isArchived(),
-            409,
+            403,
             'Restore this property before editing it.'
         );
 
@@ -301,7 +294,7 @@ class PropertyController extends Controller
 
         abort_if(
             $property->isArchived(),
-            409,
+            403,
             'Restore this property before editing it.'
         );
 
@@ -321,7 +314,6 @@ class PropertyController extends Controller
 
     /**
      * Archive an active property.
-     *
      * No units or maintenance records are deleted.
      */
     public function archive(

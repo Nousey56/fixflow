@@ -36,6 +36,20 @@ class UnitController extends Controller
     }
 
     /**
+     * Prevent changes to units belonging to
+     * an archived property.
+     */
+    private function authorizeActiveProperty(
+        Property $property
+    ): void {
+        abort_if(
+            $property->isArchived(),
+            403,
+            'Restore this property before modifying its units.'
+        );
+    }
+
+    /**
      * Verify that a unit belongs to the property
      * specified in the URL.
      */
@@ -58,6 +72,7 @@ class UnitController extends Controller
         Property $property
     ) {
         $this->authorizeProperty($request, $property);
+        $this->authorizeActiveProperty($property);
 
         return view('units.create', [
             'property' => $property,
@@ -72,6 +87,7 @@ class UnitController extends Controller
         Property $property
     ) {
         $this->authorizeProperty($request, $property);
+        $this->authorizeActiveProperty($property);
 
         $validated = $request->validate([
             'unit_number' => [
@@ -108,6 +124,7 @@ class UnitController extends Controller
     ) {
         $this->authorizeProperty($request, $property);
         $this->authorizeUnit($property, $unit);
+        $this->authorizeActiveProperty($property);
 
         return view('units.edit', [
             'property' => $property,
@@ -125,6 +142,7 @@ class UnitController extends Controller
     ) {
         $this->authorizeProperty($request, $property);
         $this->authorizeUnit($property, $unit);
+        $this->authorizeActiveProperty($property);
 
         $validated = $request->validate([
             'unit_number' => [
