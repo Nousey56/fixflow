@@ -199,6 +199,14 @@
                 </a>
 
                 <a
+                    href="{{ route('calendar.index') }}"
+                    class="{{ request()->routeIs('calendar.*') ? 'ff-active' : '' }}"
+                    @if (request()->routeIs('calendar.*')) aria-current="page" @endif
+                >
+                    Calendar
+                </a>
+
+                <a
                     href="{{ route('properties.index') }}"
                     class="{{ request()->routeIs('properties.*') ? 'ff-active' : '' }}"
                 >
