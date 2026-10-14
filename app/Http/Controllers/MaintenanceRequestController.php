@@ -175,16 +175,64 @@ class MaintenanceRequestController extends Controller
      */
     public function index(Request $request)
     {
-        $requests = $this->accessibleRequests($request)
-            ->with([
-                'unit.property',
-                'assignedTechnician',
-            ])
-            ->latest()
-            ->get();
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(['open', 'assigned', 'in_progress', 'completed', 'cancelled'])],
+            'priority' => ['nullable', Rule::in(['low', 'medium', 'high', 'emergency'])],
+        ]);
+
+        // Always start from the access-controlled query, including for statistics.
+        $accessible = $this->accessibleRequests($request);
+
+        $statistics = [
+            'total' => (clone $accessible)->count(),
+            'open' => (clone $accessible)->where('status', 'open')->count(),
+            'in_progress' => (clone $accessible)->where('status', 'in_progress')->count(),
+            'completed' => (clone $accessible)->where('status', 'completed')->count(),
+        ];
+
+        $query = clone $accessible;
+        $search = trim($filters['search'] ?? '');
+
+        if ($search !== '') {
+            $query->where(function ($matching) use ($search) {
+                $matching->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('unit', function ($units) use ($search) {
+                        $units->where('unit_number', 'like', "%{$search}%")
+                            ->orWhereHas('property', function ($properties) use ($search) {
+                                $properties->where('name', 'like', "%{$search}%");
+                            });
+                    })
+                    ->orWhereHas('assignedTechnician', function ($technicians) use ($search) {
+                        $technicians->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['priority'])) {
+            $query->where('priority', $filters['priority']);
+        }
+
+        $requests = $query
+            ->with(['unit.property', 'assignedTechnician'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->paginate(15)
+            ->withQueryString();
 
         return view('maintenance.index', [
             'requests' => $requests,
+            'statistics' => $statistics,
+            'filters' => [
+                'search' => $search,
+                'status' => $filters['status'] ?? '',
+                'priority' => $filters['priority'] ?? '',
+            ],
         ]);
     }
 

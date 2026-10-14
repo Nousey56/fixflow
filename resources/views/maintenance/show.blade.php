@@ -2,6 +2,8 @@
     $isManager = (bool) ($canEditPriority ?? false);
     $isAdmin = (bool) ($canAssign ?? false);
     $isTechnician = ! $isManager;
+    $scheduledStart = $request->scheduled_start_at;
+    $scheduledEnd = $request->scheduled_end_at;
     $started = $request->started_at ? \Illuminate\Support\Carbon::parse($request->started_at) : null;
     $completed = $request->completed_at ? \Illuminate\Support\Carbon::parse($request->completed_at) : null;
     $durationSeconds = ($started && $completed && $completed->greaterThanOrEqualTo($started))
@@ -54,9 +56,9 @@
         .form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
         .field { margin-bottom: 18px; }
         .field label { display: block; font-size: 14px; font-weight: 650; margin-bottom: 9px; }
-        .field select, .field textarea { width: 100%; border: 1px solid #d2d2d7; border-radius: 13px; padding: 14px; font: inherit; background: white; color: #1d1d1f; }
+        .field select, .field textarea, .field input { width: 100%; border: 1px solid #d2d2d7; border-radius: 13px; padding: 14px; font: inherit; background: white; color: #1d1d1f; }
         .field textarea { min-height: 120px; resize: vertical; }
-        .field select:focus, .field textarea:focus { outline: 3px solid #cce4ff; border-color: #0071e3; }
+        .field select:focus, .field textarea:focus, .field input:focus { outline: 3px solid #cce4ff; border-color: #0071e3; }
         .history-item { padding: 18px 0; border-top: 1px solid #e8e8ed; }
         .history-item:first-of-type { border-top: 0; }
         .history-date { font-size: 13px; color: #6e6e73; margin-bottom: 9px; }
@@ -104,6 +106,46 @@
                 </div>
             </div>
             <div class="section"><div class="label">Request created</div><p class="muted">{{ $request->created_at->format('F j, Y \a\t g:i A') }}</p></div>
+        </section>
+
+        <section class="card" id="scheduling">
+            <h2>Work order schedule</h2>
+            <div class="grid">
+                <div class="tile"><div class="label">Scheduled start</div><div class="tile-value">{{ $scheduledStart?->format('M j, Y g:i A') ?? 'Not scheduled' }}</div></div>
+                <div class="tile"><div class="label">Scheduled end</div><div class="tile-value">{{ $scheduledEnd?->format('M j, Y g:i A') ?? 'Not scheduled' }}</div></div>
+                <div class="tile"><div class="label">Technician</div><div class="tile-value">{{ $request->assignedTechnician?->name ?? 'Unassigned' }}</div></div>
+            </div>
+            @if (filled($request->scheduling_notes))
+                <div class="section"><div class="label">Scheduling instructions</div><div class="note">{{ $request->scheduling_notes }}</div></div>
+            @endif
+            @if ($isManager && $request->status !== 'completed')
+                <div class="section">
+                    <h2>{{ $scheduledStart ? 'Reschedule appointment' : 'Schedule appointment' }}</h2>
+                    <form method="POST" action="{{ route('maintenance.schedule.update', $request) }}">
+                        @csrf
+                        @method('PATCH')
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="scheduled_start_at">Start date and time</label>
+                                <input type="datetime-local" id="scheduled_start_at" name="scheduled_start_at" required value="{{ old('scheduled_start_at', $scheduledStart?->format('Y-m-d\TH:i')) }}">
+                            </div>
+                            <div class="field">
+                                <label for="scheduled_end_at">End date and time</label>
+                                <input type="datetime-local" id="scheduled_end_at" name="scheduled_end_at" required value="{{ old('scheduled_end_at', $scheduledEnd?->format('Y-m-d\TH:i')) }}">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="scheduling_notes">Scheduling notes (optional)</label>
+                            <textarea id="scheduling_notes" name="scheduling_notes" maxlength="5000" placeholder="Access details, tenant availability, or instructions...">{{ old('scheduling_notes', $request->scheduling_notes) }}</textarea>
+                        </div>
+                        <button type="submit" class="button">Save Schedule</button>
+                    </form>
+                </div>
+            @elseif ($request->status === 'completed')
+                <p class="muted">Completed work orders cannot be rescheduled.</p>
+            @else
+                <p class="muted">Scheduling is managed by company administrators and managers.</p>
+            @endif
         </section>
 
         @if ($request->status === 'completed')

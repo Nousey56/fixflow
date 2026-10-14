@@ -14,7 +14,20 @@ class MaintenanceRequest extends Model
         'status',
         'work_notes',
         'assigned_to',
+        'scheduled_start_at',
+        'scheduled_end_at',
+        'scheduling_notes',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'scheduled_start_at' => 'datetime',
+            'scheduled_end_at' => 'datetime',
+            'started_at' => 'datetime',
+            'completed_at' => 'datetime',
+        ];
+    }
 
     public function unit()
     {

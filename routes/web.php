@@ -1,9 +1,9 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MaintenanceRequestController;
+use App\Http\Controllers\WorkOrderScheduleController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TechnicianDashboardController;
 use App\Http\Controllers\JobWorkflowController;
@@ -46,6 +46,13 @@ Route::middleware('auth')->group(function () {
     Route::patch('/maintenance/{maintenanceRequest}', [MaintenanceRequestController::class, 'update'])
         ->name('maintenance.update');
 
+    // Work Order Scheduling
+
+    Route::patch(
+        '/maintenance/{maintenanceRequest}/schedule',
+        [WorkOrderScheduleController::class, 'update']
+    )->name('maintenance.schedule.update');
+
     // Team Management
 
     Route::get('/team', [TeamController::class, 'index'])
@@ -65,11 +72,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/technician', [TechnicianDashboardController::class, 'index'])
         ->name('technician.index');
 
-    Route::post('/technician/jobs/{maintenanceRequest}/start', [JobWorkflowController::class, 'start'])
-        ->name('technician.jobs.start');
+    Route::post(
+        '/technician/jobs/{maintenanceRequest}/start',
+        [JobWorkflowController::class, 'start']
+    )->name('technician.jobs.start');
 
-    Route::post('/technician/jobs/{maintenanceRequest}/complete', [JobWorkflowController::class, 'complete'])
-        ->name('technician.jobs.complete');
+    Route::post(
+        '/technician/jobs/{maintenanceRequest}/complete',
+        [JobWorkflowController::class, 'complete']
+    )->name('technician.jobs.complete');
 
     // Property Management
 
@@ -90,25 +101,37 @@ Route::middleware('auth')->group(function () {
 
     // Property Archiving and Restoration
 
-    Route::patch('/properties/{property}/archive', [PropertyController::class, 'archive'])
-        ->name('properties.archive');
+    Route::patch(
+        '/properties/{property}/archive',
+        [PropertyController::class, 'archive']
+    )->name('properties.archive');
 
-    Route::patch('/properties/{property}/restore', [PropertyController::class, 'restore'])
-        ->name('properties.restore');
+    Route::patch(
+        '/properties/{property}/restore',
+        [PropertyController::class, 'restore']
+    )->name('properties.restore');
 
     // Unit Management
 
-    Route::get('/properties/{property}/units/create', [UnitController::class, 'create'])
-        ->name('units.create');
+    Route::get(
+        '/properties/{property}/units/create',
+        [UnitController::class, 'create']
+    )->name('units.create');
 
-    Route::post('/properties/{property}/units', [UnitController::class, 'store'])
-        ->name('units.store');
+    Route::post(
+        '/properties/{property}/units',
+        [UnitController::class, 'store']
+    )->name('units.store');
 
-    Route::get('/properties/{property}/units/{unit}/edit', [UnitController::class, 'edit'])
-        ->name('units.edit');
+    Route::get(
+        '/properties/{property}/units/{unit}/edit',
+        [UnitController::class, 'edit']
+    )->name('units.edit');
 
-    Route::patch('/properties/{property}/units/{unit}', [UnitController::class, 'update'])
-        ->name('units.update');
+    Route::patch(
+        '/properties/{property}/units/{unit}',
+        [UnitController::class, 'update']
+    )->name('units.update');
 
     // Property Details
 
