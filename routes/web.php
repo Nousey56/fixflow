@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MaintenanceRequestController;
 use App\Http\Controllers\WorkOrderScheduleController;
+use App\Http\Controllers\DispatchController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TechnicianDashboardController;
 use App\Http\Controllers\JobWorkflowController;
@@ -52,6 +53,11 @@ Route::middleware('auth')->group(function () {
         '/maintenance/{maintenanceRequest}/schedule',
         [WorkOrderScheduleController::class, 'update']
     )->name('maintenance.schedule.update');
+
+    // Technician Dispatch Board
+
+    Route::get('/dispatch', [DispatchController::class, 'index'])
+        ->name('dispatch.index');
 
     // Team Management
 

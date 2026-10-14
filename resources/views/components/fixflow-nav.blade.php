@@ -191,6 +191,14 @@
 
             @if ($canManage)
                 <a
+                    href="{{ route('dispatch.index') }}"
+                    class="{{ request()->routeIs('dispatch.*') ? 'ff-active' : '' }}"
+                    @if (request()->routeIs('dispatch.*')) aria-current="page" @endif
+                >
+                    Dispatch
+                </a>
+
+                <a
                     href="{{ route('properties.index') }}"
                     class="{{ request()->routeIs('properties.*') ? 'ff-active' : '' }}"
                 >
