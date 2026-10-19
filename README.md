@@ -1,58 +1,293 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# FixFlow — Multi-Tenant Maintenance Management Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**A full-stack property maintenance management application built with Laravel, PHP, and MySQL.**
 
-## About Laravel
+FixFlow helps property management teams organize maintenance requests, coordinate technicians, schedule repairs, and monitor operational performance across multiple properties.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The application was developed as a software engineering portfolio project, with an emphasis on secure multi-tenant architecture, role-based authorization, database-driven workflows, automated testing, and responsive user interface design.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Project status:** Active development — functional local application.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Overview
 
-## Learning Laravel
+Property management teams often need to coordinate repairs across different buildings, units, and technicians. Without a centralized workflow, maintenance requests can become difficult to prioritize, assign, track, and report on.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+FixFlow brings these operations together in a single platform.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+The application supports multiple property management companies, with company-specific access controls designed to prevent unauthorized access to another organization's information.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Key Features
 
-## Agentic Development
+### Maintenance Management
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- Create and manage maintenance work orders.
+- Track work orders through open, assigned, in-progress, and completed statuses.
+- Categorize requests by low, medium, high, and emergency priority.
+- Search and filter work orders by relevant details.
+- Record work notes and maintenance activity history.
+- Require completion notes when completing repairs.
 
-```bash
-composer require laravel/boost --dev
+### Technician Workflow
 
-php artisan boost:install
+- Dedicated technician dashboard.
+- View assigned maintenance jobs.
+- Start and complete assigned work.
+- Track technician workload and assignments.
+- Restrict unauthorized status, priority, and assignment changes.
+
+### Property Management
+
+- Organize properties and individual units.
+- Associate maintenance requests with specific units.
+- View property-level maintenance information.
+- Manage property records and supported archive/restore workflows.
+
+### Scheduling and Dispatch
+
+- Schedule maintenance appointments.
+- Reschedule existing work orders.
+- Coordinate technician assignments.
+- View scheduled work through a maintenance calendar.
+- Monitor technician workload.
+
+### Analytics and Reporting
+
+- Maintenance request totals and status breakdowns.
+- Work-order completion rates.
+- Priority distribution.
+- Six-month maintenance trends.
+- Technician performance metrics.
+- Property-level maintenance insights.
+
+### Responsive Interface
+
+- Clean, modern dashboard design.
+- Mobile-responsive layouts.
+- Collapsible navigation for smaller screens.
+- Role-aware navigation and interface elements.
+
+## Multi-Tenant Architecture
+
+FixFlow is designed to support multiple property management companies within one application.
+
+Each company can have its own properties, units, maintenance requests, and team memberships.
+
+The core data relationships are:
+
+```text
+Company
+  ├── Company Memberships
+  │     └── Users and Roles
+  │
+  └── Properties
+        └── Units
+              └── Maintenance Requests
+                    ├── Assigned Technician
+                    └── Activity History
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The application uses company memberships and authorization checks to control access to company-specific records.
 
-## Contributing
+A user can belong to more than one company, with permissions determined by their active memberships.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Roles and Permissions
 
-## Code of Conduct
+| Capability | Administrator | Manager | Technician |
+|---|---|---|---|
+| View authorized maintenance requests | Yes | Yes | Assigned jobs |
+| Manage maintenance requests | Yes | Yes | Restricted |
+| Change work-order priority | Yes | Yes | No |
+| Assign technicians | Yes | Restricted | No |
+| Schedule maintenance | Yes | Yes | No |
+| View management analytics | Yes | Yes | No |
+| Manage team memberships | Yes | Restricted | No |
+| Start and complete assigned jobs | Workflow-dependent | Workflow-dependent | Yes |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+*Specific permissions are enforced by backend authorization logic, not just by hiding interface controls.*
 
-## Security Vulnerabilities
+## Technology Stack
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Layer | Technology |
+|---|---|
+| Backend | PHP, Laravel |
+| Database | MySQL |
+| Frontend | Laravel Blade, HTML, CSS, JavaScript |
+| ORM | Laravel Eloquent |
+| Authentication | Laravel session-based authentication |
+| Testing | PHPUnit / Laravel Feature Tests |
+| Version Control | Git |
+| Development Environment | macOS, Visual Studio Code |
+
+## Security and Authorization
+
+Security is a central part of FixFlow's design.
+
+Implemented protections include:
+
+- Authentication requirements for protected routes.
+- Role-based access control using active company memberships.
+- Company-scoped data access.
+- Restrictions on cross-company work-order modifications.
+- Technician-specific authorization rules.
+- Server-side validation of maintenance updates.
+- Restrictions on unauthorized technician assignments.
+- Automated regression tests for access control and workflow permissions.
+
+These controls help ensure that access restrictions remain enforced even when users submit requests directly to backend endpoints.
+
+## Automated Testing
+
+FixFlow includes automated feature tests covering core application behavior and security.
+
+**Latest verified test suite:**
+
+- **103 passing tests**
+- **306 assertions**
+
+Test coverage includes:
+
+- Work-order creation and updates.
+- Technician assignment and permissions.
+- Maintenance scheduling.
+- Dashboard filtering and pagination.
+- Property management and archiving.
+- Company data isolation.
+- Technician workload reporting.
+- Maintenance analytics.
+- Authentication and authorization restrictions.
+
+Run the complete test suite:
+
+```bash
+php artisan test
+```
+
+## Local Installation
+
+### Prerequisites
+
+- PHP compatible with the project's Laravel version
+- Composer
+- MySQL
+- Node.js and npm
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone YOUR_REPOSITORY_URL
+cd fixflow
+```
+
+### 2. Install PHP dependencies
+
+```bash
+composer install
+```
+
+### 3. Install frontend dependencies
+
+```bash
+npm install
+```
+
+### 4. Configure the environment
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Update `.env` with your local database credentials.
+
+Example:
+
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=fixflow
+DB_USERNAME=your_database_username
+DB_PASSWORD=your_database_password
+```
+
+Create the corresponding MySQL database before running migrations.
+
+### 5. Run database migrations
+
+```bash
+php artisan migrate
+```
+
+### 6. Build frontend assets
+
+```bash
+npm run build
+```
+
+### 7. Start the application
+
+```bash
+php artisan serve
+```
+
+Open the local address shown in your terminal.
+
+**Note:** The project includes development and demonstration tooling. Use only fictional demonstration data, and review all environment-specific configuration before publishing or deploying.
+
+## Screenshots
+
+Application screenshots will be added as part of the portfolio presentation.
+
+Planned screenshots include:
+
+- Work Orders Dashboard
+- Maintenance Request Details
+- Dispatch Board
+- Maintenance Calendar
+- Technician Dashboard
+- Analytics Dashboard
+- Mobile Navigation
+
+## Engineering Highlights
+
+This project demonstrates practical software engineering skills in several areas.
+
+**Backend development:** Laravel controllers, request validation, Eloquent relationships, database transactions, and REST-style application routes.
+
+**Database design:** Relational data modeling across companies, properties, units, memberships, work orders, and maintenance activity.
+
+**Application security:** Multi-tenant data isolation, role-based authorization, and protection against unauthorized workflow changes.
+
+**Testing:** Automated feature tests that verify business rules, access restrictions, and regression-sensitive functionality.
+
+**Frontend development:** Responsive layouts, reusable Blade components, management dashboards, and role-specific interfaces.
+
+**Software development workflow:** Git version control, incremental feature development, debugging, and test-driven security improvements.
+
+## Roadmap
+
+Planned improvements include:
+
+- Publicly accessible demonstration environment.
+- Expanded reporting and analytics.
+- Additional automated security tests.
+- Continuous integration with GitHub Actions.
+- Architecture and database documentation.
+- Tenant-facing maintenance request portal.
+- Improved notification workflows.
+- Additional usability and accessibility improvements.
+
+These are planned features and are not represented as completed functionality.
+
+## Project Purpose
+
+FixFlow was created to explore how a modern property maintenance platform can combine operational workflows, secure data access, and practical reporting.
+
+It is intended both as a functional application and as a demonstration of full-stack software engineering skills.
+
+The long-term goal is to continue developing FixFlow into a more comprehensive maintenance management solution.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+No
