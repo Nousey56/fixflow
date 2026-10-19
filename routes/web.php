@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MaintenanceCalendarController;
+use App\Http\Controllers\MaintenanceAnalyticsController;
 use App\Http\Controllers\TechnicianWorkloadController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MaintenanceRequestController;
@@ -37,6 +38,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/workload', [TechnicianWorkloadController::class, 'index'])
         ->name('workload.index');
+
+    // Maintenance Analytics & Reporting
+
+    Route::get('/analytics', [MaintenanceAnalyticsController::class, 'index'])
+        ->name('analytics.index');
 
     // Authentication
 
