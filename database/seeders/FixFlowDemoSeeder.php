@@ -10,168 +10,98 @@ use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use RuntimeException;
+use Illuminate\Support\Str;
 
 class FixFlowDemoSeeder extends Seeder
 {
     public function run(): void
     {
-        // Never allow this seeder to run on the main database.
-        $database = DB::connection()->getDatabaseName();
+        DB::transaction(function (): void {
+            $company = Company::where(
+                'slug',
+                'fixflow-demo'
+            )->firstOrFail();
 
-        if ($database !== 'fixflow_demo') {
-            throw new RuntimeException(
-                "Demo seeder blocked. Connected database: {$database}"
-            );
-        }
-
-        DB::transaction(function () {
-
-            // ----------------------------------------
-            // 1. Demo company
-            // ----------------------------------------
-
-            $company = Company::firstOrCreate(
-                [
-                    'slug' => 'fixflow-demo',
-                ],
-                [
-                    'name' => 'FixFlow Demo Property Management',
-                    'email' => 'demo@fixflow.test',
-                    'status' => 'active',
-                ]
+            $this->command?->info(
+                'Preparing FixFlow Demo data...'
             );
 
-            // ----------------------------------------
-            // 2. Demo accounts
-            // ----------------------------------------
+            $manager = $this->createTeamMember(
+                $company,
+                'Demo Property Manager',
+                'manager@demo.fixflow.test',
+                'manager'
+            );
 
-            $accounts = [
-                [
-                    'name' => 'Demo Administrator',
-                    'email' => 'admin.demo@fixflow.test',
-                    'role' => 'company_admin',
-                ],
-                [
-                    'name' => 'Demo Manager',
-                    'email' => 'manager.demo@fixflow.test',
-                    'role' => 'manager',
-                ],
-                [
-                    'name' => 'Jordan Williams',
-                    'email' => 'technician1.demo@fixflow.test',
-                    'role' => 'technician',
-                ],
-                [
-                    'name' => 'Taylor Morgan',
-                    'email' => 'technician2.demo@fixflow.test',
-                    'role' => 'technician',
-                ],
+            $technicians = [
+                $this->createTeamMember(
+                    $company,
+                    'Alex Morgan',
+                    'alex@demo.fixflow.test',
+                    'technician'
+                ),
+                $this->createTeamMember(
+                    $company,
+                    'Jordan Lee',
+                    'jordan@demo.fixflow.test',
+                    'technician'
+                ),
+                $this->createTeamMember(
+                    $company,
+                    'Taylor Brooks',
+                    'taylor@demo.fixflow.test',
+                    'technician'
+                ),
             ];
 
-            $users = [];
-
-            foreach ($accounts as $account) {
-
-                $user = User::firstOrCreate(
-                    [
-                        'email' => $account['email'],
-                    ],
-                    [
-                        'name' => $account['name'],
-                        'password' => Hash::make('FixFlowDemo2026!'),
-                        'email_verified_at' => now(),
-                    ]
-                );
-
-                CompanyMembership::updateOrCreate(
-                    [
-                        'company_id' => $company->id,
-                        'user_id' => $user->id,
-                    ],
-                    [
-                        'role' => $account['role'],
-                        'status' => 'active',
-                    ]
-                );
-
-                $users[$account['email']] = $user;
-            }
-
-            $technician1 = $users['technician1.demo@fixflow.test'];
-            $technician2 = $users['technician2.demo@fixflow.test'];
-
-            // ----------------------------------------
-            // 3. Demo properties and apartments
-            // ----------------------------------------
-
-            $properties = [
+            $propertyData = [
                 [
-                    'name' => 'Harbor Point',
-                    'address' => '100 Demo Harbor Avenue',
-                    'city' => 'New York',
+                    'name' => 'Harbor View Residences',
+                    'address' => '100 Demo Harbor Lane',
+                    'city' => 'Brooklyn',
                     'state' => 'NY',
-                    'zip_code' => '10001',
-                    'units' => [
-                        '225',
-                        '325',
-                        '425',
-                        '1222',
-                    ],
+                    'zip_code' => '00000',
                 ],
                 [
-                    'name' => 'The Vault',
-                    'address' => '200 Demo Vault Street',
-                    'city' => 'New York',
+                    'name' => 'Maple Grove Apartments',
+                    'address' => '200 Example Maple Street',
+                    'city' => 'Queens',
                     'state' => 'NY',
-                    'zip_code' => '10002',
-                    'units' => [
-                        '101',
-                        '220',
-                        '310',
-                        '411',
-                    ],
+                    'zip_code' => '00000',
                 ],
                 [
-                    'name' => 'The Key',
-                    'address' => '300 Demo Key Boulevard',
-                    'city' => 'New York',
+                    'name' => 'Riverside Heights',
+                    'address' => '300 Sample Riverside Avenue',
+                    'city' => 'Bronx',
                     'state' => 'NY',
-                    'zip_code' => '10003',
-                    'units' => [
-                        '107',
-                        '312',
-                        '421',
-                        '512',
-                    ],
+                    'zip_code' => '00000',
                 ],
             ];
 
             $units = [];
 
-            foreach ($properties as $propertyData) {
-
+            foreach ($propertyData as $propertyIndex => $data) {
                 $property = Property::firstOrCreate(
                     [
                         'company_id' => $company->id,
-                        'name' => $propertyData['name'],
+                        'name' => $data['name'],
                     ],
                     [
-                        'address' => $propertyData['address'],
-                        'city' => $propertyData['city'],
-                        'state' => $propertyData['state'],
-                        'zip_code' => $propertyData['zip_code'],
+                        'address' => $data['address'],
+                        'city' => $data['city'],
+                        'state' => $data['state'],
+                        'zip_code' => $data['zip_code'],
                     ]
                 );
 
-                foreach ($propertyData['units'] as $unitNumber) {
+                for ($number = 1; $number <= 5; $number++) {
+                    $floor = (int) ceil($number / 2);
 
-                    $floor = strlen($unitNumber) > 2
-                        ? (int) substr($unitNumber, 0, -2)
-                        : 1;
+                    $unitNumber = (string) (
+                        ($floor * 100) + $number
+                    );
 
-                    $unit = Unit::firstOrCreate(
+                    $units[] = Unit::firstOrCreate(
                         [
                             'property_id' => $property->id,
                             'unit_number' => $unitNumber,
@@ -180,135 +110,165 @@ class FixFlowDemoSeeder extends Seeder
                             'floor' => $floor,
                         ]
                     );
-
-                    $units[
-                        $propertyData['name'] . ':' . $unitNumber
-                    ] = $unit;
                 }
             }
 
-            // ----------------------------------------
-            // 4. Demo maintenance requests
-            // ----------------------------------------
-
-            $jobs = [
-                [
-                    'unit' => 'Harbor Point:425',
-                    'title' => 'Water heater leaking',
-                    'description' => 'Water heater leaking into nearby hallway.',
-                    'priority' => 'emergency',
-                    'status' => 'open',
-                    'technician' => null,
-                ],
-                [
-                    'unit' => 'Harbor Point:325',
-                    'title' => 'Water damage inspection',
-                    'description' => 'Inspect hallway and flooring for water damage.',
-                    'priority' => 'high',
-                    'status' => 'assigned',
-                    'technician' => $technician1,
-                ],
-                [
-                    'unit' => 'Harbor Point:225',
-                    'title' => 'Ceiling moisture',
-                    'description' => 'Check ceiling after reported leak from above.',
-                    'priority' => 'high',
-                    'status' => 'in_progress',
-                    'technician' => $technician2,
-                ],
-                [
-                    'unit' => 'Harbor Point:1222',
-                    'title' => 'Bathroom plumbing repair',
-                    'description' => 'Inspect leaking bathroom supply connection.',
-                    'priority' => 'medium',
-                    'status' => 'completed',
-                    'technician' => $technician1,
-                ],
-                [
-                    'unit' => 'The Vault:101',
-                    'title' => 'Kitchen faucet repair',
-                    'description' => 'Kitchen faucet dripping continuously.',
-                    'priority' => 'low',
-                    'status' => 'completed',
-                    'technician' => $technician2,
-                ],
-                [
-                    'unit' => 'The Vault:220',
-                    'title' => 'Access fob not working',
-                    'description' => 'Resident cannot access building using issued fob.',
-                    'priority' => 'medium',
-                    'status' => 'completed',
-                    'technician' => $technician1,
-                ],
-                [
-                    'unit' => 'The Vault:310',
-                    'title' => 'Smoke detector inspection',
-                    'description' => 'Smoke detector chirping intermittently.',
-                    'priority' => 'high',
-                    'status' => 'assigned',
-                    'technician' => $technician2,
-                ],
-                [
-                    'unit' => 'The Vault:411',
-                    'title' => 'Bedroom outlet repair',
-                    'description' => 'Outlet is not supplying power.',
-                    'priority' => 'medium',
-                    'status' => 'open',
-                    'technician' => null,
-                ],
-                [
-                    'unit' => 'The Key:107',
-                    'title' => 'Laundry area leak',
-                    'description' => 'Water found behind washer and dryer.',
-                    'priority' => 'high',
-                    'status' => 'in_progress',
-                    'technician' => $technician1,
-                ],
-                [
-                    'unit' => 'The Key:312',
-                    'title' => 'Apartment lockout',
-                    'description' => 'Resident requires assistance with apartment access.',
-                    'priority' => 'medium',
-                    'status' => 'completed',
-                    'technician' => $technician2,
-                ],
-                [
-                    'unit' => 'The Key:421',
-                    'title' => 'Air conditioning failure',
-                    'description' => 'Cooling system not functioning; temporary unit needed.',
-                    'priority' => 'high',
-                    'status' => 'assigned',
-                    'technician' => $technician1,
-                ],
-                [
-                    'unit' => 'The Key:512',
-                    'title' => 'Window latch repair',
-                    'description' => 'Window latch does not close properly.',
-                    'priority' => 'low',
-                    'status' => 'open',
-                    'technician' => null,
-                ],
+            $issues = [
+                ['Leaking kitchen faucet', 'medium', 'open'],
+                ['Air conditioning not cooling', 'high', 'assigned'],
+                ['Hallway light flickering', 'low', 'completed'],
+                ['Water heater leaking', 'emergency', 'in_progress'],
+                ['Bathroom exhaust fan broken', 'medium', 'open'],
+                ['Bedroom window will not close', 'high', 'assigned'],
+                ['Dishwasher not draining', 'medium', 'completed'],
+                ['Smoke detector chirping', 'high', 'in_progress'],
+                ['Closet door off track', 'low', 'open'],
+                ['Toilet continuously running', 'medium', 'assigned'],
+                ['Refrigerator not cooling', 'high', 'in_progress'],
+                ['Loose cabinet hinges', 'low', 'completed'],
+                ['Heating system not responding', 'emergency', 'assigned'],
+                ['Bathroom sink clogged', 'medium', 'open'],
+                ['Broken entry door lock', 'high', 'completed'],
+                ['Ceiling water stain', 'high', 'in_progress'],
+                ['Washing machine vibrating', 'medium', 'assigned'],
+                ['Damaged bedroom outlet', 'high', 'open'],
+                ['Balcony door sticking', 'low', 'completed'],
+                ['Water pressure unusually low', 'medium', 'assigned'],
             ];
 
-            foreach ($jobs as $job) {
+            foreach ($issues as $index => $issue) {
+                [$title, $priority, $status] = $issue;
 
-                MaintenanceRequest::firstOrCreate(
+                $unit = $units[$index % count($units)];
+
+                $technician = $technicians[
+                    $index % count($technicians)
+                ];
+
+                $assignedTo = $status === 'open'
+                    ? null
+                    : $technician->id;
+
+                $scheduledStart = null;
+                $scheduledEnd = null;
+
+                if (in_array(
+                    $status,
+                    ['assigned', 'in_progress'],
+                    true
+                )) {
+                    $scheduledStart = now()
+                        ->addDays(($index % 12) + 1)
+                        ->setTime(9 + ($index % 6), 0);
+
+                    $scheduledEnd = $scheduledStart
+                        ->copy()
+                        ->addHours(2);
+                }
+
+                $request = MaintenanceRequest::firstOrCreate(
                     [
-                        'unit_id' => $units[$job['unit']]->id,
-                        'title' => $job['title'],
+                        'unit_id' => $unit->id,
+                        'title' => $title,
                     ],
                     [
-                        'description' => $job['description'],
-                        'priority' => $job['priority'],
-                        'status' => $job['status'],
-                        'assigned_to' => $job['technician']?->id,
+                        'description' =>
+                            'Fictional maintenance request created '
+                            . 'for the FixFlow portfolio demonstration.',
+                        'priority' => $priority,
+                        'status' => $status,
+                        'assigned_to' => $assignedTo,
+                        'work_notes' =>
+                            'Demo work order. No real tenant information.',
+                        'scheduled_start_at' => $scheduledStart,
+                        'scheduled_end_at' => $scheduledEnd,
+                        'scheduling_notes' =>
+                            $scheduledStart
+                                ? 'Demo appointment.'
+                                : null,
                     ]
                 );
-            }
-        });
 
-        $this->command->info(
-            'FixFlow demo data created successfully!'
+                if ($request->wasRecentlyCreated) {
+                    $request->forceFill([
+                        'created_at' => now()->subDays(
+                            20 - ($index % 20)
+                        ),
+                    ])->save();
+                }
+            }
+
+            $this->command?->info(
+                'FixFlow Demo seeding completed.'
+            );
+
+            $this->command?->table(
+                ['Resource', 'Count'],
+                [
+                    [
+                        'Demo properties',
+                        Property::where(
+                            'company_id',
+                            $company->id
+                        )->count(),
+                    ],
+                    [
+                        'Demo units',
+                        Unit::whereHas(
+                            'property',
+                            fn ($query) => $query->where(
+                                'company_id',
+                                $company->id
+                            )
+                        )->count(),
+                    ],
+                    [
+                        'Demo work orders',
+                        MaintenanceRequest::whereHas(
+                            'unit.property',
+                            fn ($query) => $query->where(
+                                'company_id',
+                                $company->id
+                            )
+                        )->count(),
+                    ],
+                    [
+                        'Active team members',
+                        CompanyMembership::where(
+                            'company_id',
+                            $company->id
+                        )->where('status', 'active')->count(),
+                    ],
+                ]
+            );
+        });
+    }
+
+    private function createTeamMember(
+        Company $company,
+        string $name,
+        string $email,
+        string $role
+    ): User {
+        $user = User::firstOrCreate(
+            ['email' => $email],
+            [
+                'name' => $name,
+                'password' => Str::random(64),
+            ]
         );
+
+        CompanyMembership::firstOrCreate(
+            [
+                'company_id' => $company->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'role' => $role,
+                'status' => 'active',
+            ]
+        );
+
+        return $user;
     }
 }
