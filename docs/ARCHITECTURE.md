@@ -1,10 +1,10 @@
 # FixFlow — System Architecture
 
-**Project:** FixFlow Enterprise  
-**Application Type:** Multi-tenant property maintenance management platform  
-**Backend:** PHP 8.5 / Laravel 13  
-**Database:** MySQL  
-**Frontend:** Laravel Blade, HTML, CSS, JavaScript, Vite  
+**Project:** FixFlow Enterprise
+**Application Type:** Multi-tenant property maintenance management platform
+**Backend:** PHP 8.5 / Laravel 13
+**Database:** MySQL
+**Frontend:** Laravel Blade, HTML, CSS, JavaScript, Vite
 **Architecture:** Server-rendered web application with a relational database
 
 ---
