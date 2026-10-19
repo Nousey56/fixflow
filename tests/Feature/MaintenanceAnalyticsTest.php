@@ -122,6 +122,7 @@ class MaintenanceAnalyticsTest extends TestCase
     public function test_inactive_admin_cannot_view_analytics(): void
     {
         $company = $this->createCompany();
+
         $admin = $this->createMember(
             $company,
             'company_admin',
@@ -149,6 +150,62 @@ class MaintenanceAnalyticsTest extends TestCase
             ->assertOk()
             ->assertViewHas('stats', function ($stats) {
                 return $stats['total'] === 1;
+            });
+    }
+
+    public function test_manager_with_two_active_companies_sees_only_authorized_analytics(): void
+    {
+        $companyA = $this->createCompany();
+        $companyB = $this->createCompany();
+        $companyC = $this->createCompany();
+
+        $manager = $this->createMember($companyA, 'manager');
+
+        CompanyMembership::create([
+            'company_id' => $companyB->id,
+            'user_id' => $manager->id,
+            'role' => 'manager',
+            'status' => 'active',
+        ]);
+
+        $this->createWorkOrder($companyA, null, 'completed', 'high');
+
+        $this->createWorkOrder($companyB, null, 'open', 'medium');
+        $this->createWorkOrder($companyB, null, 'assigned', 'emergency');
+
+        $this->createWorkOrder($companyC, null, 'open', 'low');
+        $this->createWorkOrder($companyC, null, 'completed', 'low');
+
+        $this->actingAs($manager)
+            ->get(route('analytics.index'))
+            ->assertOk()
+            ->assertViewHas('stats', function ($stats) {
+                return $stats['total'] === 3
+                    && $stats['completed'] === 1
+                    && $stats['open'] === 1
+                    && $stats['assigned'] === 1;
+            })
+            ->assertViewHas('priorities', function ($priorities) {
+                return $priorities['high'] === 1
+                    && $priorities['medium'] === 1
+                    && $priorities['emergency'] === 1
+                    && $priorities['low'] === 0;
+            })
+            ->assertViewHas('propertyInsights', function ($rows) use ($companyA, $companyB, $companyC) {
+                $companyIds = $rows
+                    ->pluck('property.company_id')
+                    ->map(fn ($id) => (int) $id)
+                    ->unique()
+                    ->sort()
+                    ->values()
+                    ->all();
+
+                $expected = [$companyA->id, $companyB->id];
+                sort($expected);
+
+                return $rows->count() === 3
+                    && $companyIds === $expected
+                    && !in_array($companyC->id, $companyIds, true);
             });
     }
 
