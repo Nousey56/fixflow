@@ -57,13 +57,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Install frontend dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build frontend assets
         run: npm run build
