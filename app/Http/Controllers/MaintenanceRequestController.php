@@ -471,12 +471,13 @@ class MaintenanceRequestController extends Controller
                 'updated_at' => now(),
             ];
 
-            // The dedicated workflow handles technician start/completion.
-            // This also prevents a crafted PATCH request from bypassing its rules.
+            // Technicians must use the dedicated job workflow.
+            // Reject every status change through the general update endpoint.
             if (!$canEditPriority && $newStatus !== $oldStatus) {
-                if ($newStatus === 'in_progress' || $newStatus === 'completed') {
-                    abort(403, 'Use the Start Job or Complete Job action on your technician dashboard.');
-                }
+                abort(
+                    403,
+                    'Technicians cannot change status through this form. Use your technician dashboard.'
+                );
             }
 
             // A completed job cannot be silently reopened by a technician.
