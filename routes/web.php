@@ -27,7 +27,7 @@ Route::post('/login', [LoginController::class, 'login'])
     ->middleware('guest')
     ->name('login.submit');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\EnsureDemoViewerReadOnly::class])->group(function () {
 
     // Maintenance Operations Calendar
 

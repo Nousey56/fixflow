@@ -19,7 +19,7 @@ class MaintenanceAnalyticsController extends Controller
         $companyIds = CompanyMembership::query()
             ->where('user_id', $user->id)
             ->where('status', 'active')
-            ->whereIn('role', ['company_admin', 'manager'])
+            ->whereIn('role', ['company_admin', 'manager', 'demo_viewer'])
             ->pluck('company_id');
 
         abort_if(

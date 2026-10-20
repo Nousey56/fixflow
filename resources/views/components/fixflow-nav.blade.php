@@ -1,4 +1,3 @@
-
 @php
     $user = auth()->user();
 
@@ -20,12 +19,17 @@
         fn ($membership) => $membership->role === 'technician'
     );
 
+    $isDemoViewer = $memberships->contains(
+        fn ($membership) => $membership->role === 'demo_viewer'
+    );
+
     $canManage = $isAdmin || $isManager;
 
     $roleLabel = match (true) {
         $isAdmin => 'Administrator',
         $isManager => 'Manager',
         $isTechnician => 'Technician',
+        $isDemoViewer => 'Demo Viewer',
         default => 'No active role',
     };
 
@@ -33,6 +37,7 @@
         $isAdmin => 'ff-role-admin',
         $isManager => 'ff-role-manager',
         $isTechnician => 'ff-role-technician',
+        $isDemoViewer => 'ff-role-demo',
         default => 'ff-role-default',
     };
 @endphp
@@ -132,6 +137,11 @@
     .ff-role-technician {
         background: #e8f7ed;
         color: #237a38;
+    }
+
+    .ff-role-demo {
+        background: #eef2ff;
+        color: #4338ca;
     }
 
     .ff-role-default {
@@ -280,7 +290,7 @@
                 Requests
             </a>
 
-            @if ($canManage)
+            @if ($canManage || $isDemoViewer)
                 <a
                     href="{{ route('dispatch.index') }}"
                     class="{{ request()->routeIs('dispatch.*') ? 'ff-active' : '' }}"

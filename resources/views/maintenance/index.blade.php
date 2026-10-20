@@ -70,6 +70,13 @@
             ->whereIn('role', ['company_admin', 'manager'])
             ->exists();
 
+        $isDemoViewer = \App\Models\CompanyMembership::query()
+            ->where('user_id', auth()->id())
+            ->where('status', 'active')
+            ->where('role', 'demo_viewer')
+            ->exists()
+            && ! $canCreate;
+
         $totalOrders = $requests->count();
         $openOrders = $requests->where('status', 'open')->count();
         $inProgressOrders = $requests->where('status', 'in_progress')->count();
@@ -90,6 +97,16 @@
 
         @if (session('success'))
             <div class="success" role="status">{{ session('success') }}</div>
+        @endif
+
+        @if ($isDemoViewer)
+            <div class="panel" role="status">
+                <div class="eyebrow">Read-only demo</div>
+                <p class="subtitle" style="margin-top: 10px;">
+                    Explore work orders, maintenance progress, and property information.
+                    Creating or modifying records is disabled for this demo account.
+                </p>
+            </div>
         @endif
 
         <section class="stats" aria-label="Work order statistics">

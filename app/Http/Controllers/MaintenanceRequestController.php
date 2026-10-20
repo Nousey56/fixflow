@@ -54,21 +54,30 @@ class MaintenanceRequestController extends Controller
     private function accessibleRequests(Request $request)
     {
         $managementIds = $this->managementCompanyIds($request);
+
+        $viewerIds = $this->memberships($request)
+            ->where('role', 'demo_viewer')
+            ->pluck('company_id');
+
+        $readableCompanyIds = $managementIds
+            ->merge($viewerIds)
+            ->unique();
+
         $technicianIds = $this->technicianCompanyIds($request);
         $userId = $request->user()->id;
 
         return MaintenanceRequest::query()
             ->where(function ($query) use (
-                $managementIds,
+                $readableCompanyIds,
                 $technicianIds,
                 $userId
             ) {
                 $query->whereHas(
                     'unit.property',
-                    function ($propertyQuery) use ($managementIds) {
+                    function ($propertyQuery) use ($readableCompanyIds) {
                         $propertyQuery->whereIn(
                             'company_id',
-                            $managementIds
+                            $readableCompanyIds
                         );
                     }
                 );
@@ -367,6 +376,17 @@ class MaintenanceRequestController extends Controller
 
         $maintenanceRequest->load('unit.property');
         $companyId = (int) $maintenanceRequest->unit->property->company_id;
+
+        abort_unless(
+            in_array(
+                $this->roleForCompany($request, $companyId),
+                ['company_admin', 'manager', 'technician'],
+                true
+            ),
+            403,
+            'Demo viewers cannot modify maintenance requests.'
+        );
+
         $canAssign = $this->isCompanyAdmin($request, $companyId);
         $canEditPriority = $this->canManage($request, $companyId);
 

@@ -1,7 +1,15 @@
 @php
     $isManager = (bool) ($canEditPriority ?? false);
     $isAdmin = (bool) ($canAssign ?? false);
-    $isTechnician = ! $isManager;
+    $isDemoViewer = \App\Models\CompanyMembership::query()
+        ->where('user_id', auth()->id())
+        ->where('company_id', $request->unit->property->company_id)
+        ->where('status', 'active')
+        ->where('role', 'demo_viewer')
+        ->exists()
+        && ! $isManager;
+
+    $isTechnician = ! $isManager && ! $isDemoViewer;
     $scheduledStart = $request->scheduled_start_at;
     $scheduledEnd = $request->scheduled_end_at;
     $started = $request->started_at ? \Illuminate\Support\Carbon::parse($request->started_at) : null;
@@ -173,7 +181,16 @@
             </section>
         @endif
 
-        @if ($isTechnician)
+        @if ($isDemoViewer)
+            <section class="card">
+                <h2>Read-only demo</h2>
+                <p class="muted">
+                    You can explore this maintenance request, its schedule,
+                    completion information, and activity history.
+                    Changes are disabled for demo accounts.
+                </p>
+            </section>
+        @elseif ($isTechnician)
             <section class="card">
                 <h2>Job actions</h2>
                 <p class="muted">Job status changes and completion notes are managed through your Technician Dashboard. This page is read-only.</p>

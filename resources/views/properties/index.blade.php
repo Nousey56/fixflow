@@ -430,7 +430,27 @@
 
     <x-fixflow-nav />
 
+    @php
+        $demoMemberships = \App\Models\CompanyMembership::query()
+            ->where('user_id', auth()->id())
+            ->where('status', 'active')
+            ->pluck('role');
+
+        $isDemoViewerOnly = $demoMemberships->isNotEmpty()
+            && $demoMemberships->every(
+                fn ($role) => $role === 'demo_viewer'
+            );
+    @endphp
+
     <main class="container">
+
+        @if ($isDemoViewerOnly)
+            <div class="alert" role="status">
+                <strong>Read-only demo.</strong>
+                You can explore properties and maintenance records,
+                but editing is disabled.
+            </div>
+        @endif
 
         <div class="eyebrow">
             Property Management
@@ -446,13 +466,15 @@
                 </p>
             </div>
 
-            <a
-                href="{{ route('properties.create') }}"
-                class="add-button"
-            >
-                <span aria-hidden="true">+</span>
-                Add Property
-            </a>
+            @unless ($isDemoViewerOnly)
+                <a
+                    href="{{ route('properties.create') }}"
+                    class="add-button"
+                >
+                    <span aria-hidden="true">+</span>
+                    Add Property
+                </a>
+            @endunless
         </div>
 
         @if (session('success'))
@@ -617,12 +639,14 @@
                         buildings, units, and maintenance requests.
                     </p>
 
-                    <a
-                        href="{{ route('properties.create') }}"
-                        class="button"
-                    >
-                        + Create Your First Property
-                    </a>
+                    @unless ($isDemoViewerOnly)
+                        <a
+                            href="{{ route('properties.create') }}"
+                            class="button"
+                        >
+                            + Create Your First Property
+                        </a>
+                    @endunless
 
                 @endif
 

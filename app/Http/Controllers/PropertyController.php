@@ -26,7 +26,45 @@ class PropertyController extends Controller
     }
 
     /**
-     * Authorize access to a specific property.
+     * Get company IDs the current user can view.
+     * Demo Viewers receive read-only property access.
+     */
+    private function viewableCompanyIds(Request $request)
+    {
+        return CompanyMembership::query()
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'active')
+            ->whereIn('role', [
+                'company_admin',
+                'manager',
+                'demo_viewer',
+            ])
+            ->pluck('company_id');
+    }
+
+    /**
+     * Authorize read access to a specific property.
+     */
+    private function authorizePropertyView(
+        Request $request,
+        Property $property
+    ): void {
+        $authorized = CompanyMembership::query()
+            ->where('user_id', $request->user()->id)
+            ->where('company_id', $property->company_id)
+            ->where('status', 'active')
+            ->whereIn('role', [
+                'company_admin',
+                'manager',
+                'demo_viewer',
+            ])
+            ->exists();
+
+        abort_unless($authorized, 404, 'Property not found.');
+    }
+
+    /**
+     * Authorize management access to a specific property.
      */
     private function authorizeProperty(
         Request $request,
@@ -90,12 +128,12 @@ class PropertyController extends Controller
      */
     public function index(Request $request)
     {
-        $companyIds = $this->manageableCompanyIds($request);
+        $companyIds = $this->viewableCompanyIds($request);
 
         abort_if(
             $companyIds->isEmpty(),
             403,
-            'Only administrators and managers can view properties.'
+            'You do not have permission to view properties.'
         );
 
         $validated = $request->validate([
@@ -249,7 +287,7 @@ class PropertyController extends Controller
         Request $request,
         Property $property
     ) {
-        $this->authorizeProperty($request, $property);
+        $this->authorizePropertyView($request, $property);
 
         $property->load([
             'company',

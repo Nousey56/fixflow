@@ -360,7 +360,27 @@
 
     <x-fixflow-nav />
 
+    @php
+        $demoMemberships = \App\Models\CompanyMembership::query()
+            ->where('user_id', auth()->id())
+            ->where('status', 'active')
+            ->pluck('role');
+
+        $isDemoViewerOnly = $demoMemberships->isNotEmpty()
+            && $demoMemberships->every(
+                fn ($role) => $role === 'demo_viewer'
+            );
+    @endphp
+
     <main class="container">
+
+        @if ($isDemoViewerOnly)
+            <div class="alert" role="status">
+                <strong>Read-only demo.</strong>
+                You can explore properties and maintenance records,
+                but editing is disabled.
+            </div>
+        @endif
 
         <a
             class="back"
@@ -393,7 +413,8 @@
             </div>
 
             <div class="property-actions">
-                @if ($property->isArchived())
+                @unless ($isDemoViewerOnly)
+                    @if ($property->isArchived())
                     <form method="POST" action="{{ route('properties.restore', $property) }}">
                         @csrf
                         @method('PATCH')
@@ -420,7 +441,8 @@
                             Archive Property
                         </button>
                     </form>
-                @endif
+                    @endif
+                @endunless
             </div>
 
         </div>
@@ -481,7 +503,7 @@
 
             <h2>Units and maintenance</h2>
 
-            @unless ($property->isArchived())
+            @if (! $property->isArchived() && ! $isDemoViewerOnly)
                 <a
                     href="{{ route('units.create', $property) }}"
                     class="add-button"
@@ -489,7 +511,7 @@
                     <span class="add-icon" aria-hidden="true">+</span>
                     Add Unit
                 </a>
-            @endunless
+            @endif
 
         </div>
 
@@ -497,7 +519,7 @@
 
             <div class="unit muted">
                 No units have been added to this property.
-                @if (! $property->isArchived())
+                @if (! $property->isArchived() && ! $isDemoViewerOnly)
                     Use the Add Unit button above to create one.
                 @endif
             </div>
@@ -535,7 +557,7 @@
 
                             </div>
 
-                            @unless ($property->isArchived())
+                            @if (! $property->isArchived() && ! $isDemoViewerOnly)
                                 <a
                                     href="{{ route('units.edit', [$property, $unit]) }}"
                                     class="edit-button"
@@ -543,7 +565,7 @@
                                 >
                                     Edit Unit →
                                 </a>
-                            @endunless
+                            @endif
 
                         </div>
 
