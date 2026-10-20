@@ -68,6 +68,60 @@ The one-click login uses a POST endpoint with CSRF protection, rate limiting, ac
 
 ---
 
+## Screenshots
+
+Explore the FixFlow Enterprise interface through screenshots captured from the live, read-only demonstration environment.
+
+### 1. Maintenance Work Orders
+
+Manage maintenance requests, monitor progress, filter by status and priority, and review assigned technicians.
+
+![FixFlow Maintenance Work Orders](docs/screenshots/01-work-orders.png)
+
+### 2. Technician Dispatch Board
+
+Monitor scheduled appointments, upcoming work orders, and maintenance jobs awaiting scheduling.
+
+![FixFlow Technician Dispatch Board](docs/screenshots/02-dispatch-board.png)
+
+### 3. Scheduled Technician Appointments
+
+View individual work orders, assigned technicians, appointment times, and priority levels.
+
+![FixFlow Scheduled Technician Appointments](docs/screenshots/03-dispatch-appointments.png)
+
+### 4. Maintenance Calendar
+
+Review scheduled maintenance activity in a monthly calendar with appointment statistics.
+
+![FixFlow Maintenance Calendar](docs/screenshots/04-maintenance-calendar.png)
+
+### 5. Calendar Appointments
+
+See color-coded maintenance appointments organized by date, priority, property, and technician.
+
+![FixFlow Calendar Appointments](docs/screenshots/05-calendar-appointments.png)
+
+### 6. Technician Workload
+
+Monitor active assignments, completed jobs, individual technician workloads, and upcoming appointments.
+
+![FixFlow Technician Workload](docs/screenshots/06-technician-workload.png)
+
+### 7. Maintenance Analytics
+
+Analyze completion rates, monthly maintenance trends, and request priority distribution.
+
+![FixFlow Maintenance Analytics](docs/screenshots/07-maintenance-analytics.png)
+
+### 8. Property Management
+
+Manage buildings and units, review property-level maintenance statistics, and navigate property records.
+
+![FixFlow Property Management](docs/screenshots/08-properties.png)
+
+---
+
 ## Core Features
 
 ### 1. Maintenance Work Orders
@@ -136,23 +190,6 @@ This allows employers to evaluate the application without requesting login crede
 
 ---
 
-## Screenshots
-
-Application screenshots will be added to demonstrate the interface and workflows.
-
-Planned screenshots:
-
-- Overview Dashboard
-- Maintenance Requests
-- Property Management
-- Dispatch Board
-- Maintenance Calendar
-- Technician Workload
-- Maintenance Analytics
-- One-Click Demo Login
-
----
-
 ## Technology Stack
 
 | Layer | Technology |
@@ -209,6 +246,13 @@ Backend queries and authorization checks restrict access to company-specific rec
 A user can belong to more than one company, with permissions determined by active company memberships.
 
 This architecture helps prevent unauthorized access to maintenance information belonging to another organization.
+
+### Architecture Documentation
+
+Additional technical documentation is available in:
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [System Design](docs/SYSTEM_DESIGN.md)
 
 ---
 
@@ -482,7 +526,6 @@ Planned improvements include:
 - Expanded notifications and communication workflows
 - Additional analytics and reporting capabilities
 - GitHub Actions continuous integration
-- Architecture and database documentation
 - Enhanced accessibility and mobile usability
 - Maintenance attachments and supporting documentation
 - Expanded automated security testing
