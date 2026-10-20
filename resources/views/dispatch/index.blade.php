@@ -8,6 +8,13 @@
 
     $view = $currentView ?? 'upcoming';
 
+    $canManageAssignments = fn ($job) => \App\Models\CompanyMembership::query()
+        ->where('user_id', auth()->id())
+        ->where('company_id', $job->unit?->property?->company_id)
+        ->where('status', 'active')
+        ->whereIn('role', ['company_admin', 'manager'])
+        ->exists();
+
     $statusLabels = [
         'open' => 'Open',
         'assigned' => 'Assigned',
@@ -789,7 +796,7 @@
                         </div>
                     </div>
 
-                    @if (!in_array($job->status, ['completed', 'cancelled'], true))
+                    @if ($canManageAssignments($job) && !in_array($job->status, ['completed', 'cancelled'], true))
                         <div class="assignment-panel">
                             <h3>Technician assignment</h3>
                             <form method="POST" action="{{ route('maintenance.assignment.update', $job) }}">
@@ -821,6 +828,11 @@
                                 </p>
                             </form>
                         </div>
+                    @elseif (! $canManageAssignments($job))
+                        <div class="assignment-panel">
+                            <h3>Technician assignment</h3>
+                            <p class="assignment-note">Read-only demo. Technician assignments cannot be changed.</p>
+                        </div>
                     @else
                         <div class="assignment-panel">
                             <h3>Technician assignment</h3>
@@ -837,7 +849,7 @@
                             href="{{ route('maintenance.show', $job) }}"
                             class="button"
                         >
-                            Manage Work Order →
+                            {{ $canManageAssignments($job) ? 'Manage Work Order' : 'View Work Order' }} →
                         </a>
                     </div>
                 </article>
