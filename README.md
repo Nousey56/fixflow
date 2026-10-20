@@ -1,12 +1,13 @@
+
 # FixFlow Enterprise
 
 ### Multi-Tenant Property Maintenance Management Platform
 
 **A full-stack SaaS application built with Laravel, PHP, and MySQL to manage property maintenance operations across multiple companies.**
 
-[**Live Application**](https://fixflow-production-tnpqsw.laravel.cloud) · [**GitHub Repository**](https://github.com/Nousey56/fixflow)
+[**Try Live Demo**](https://fixflow-production-tnpqsw.laravel.cloud/login) · [**GitHub Repository**](https://github.com/Nousey56/fixflow)
 
-**Status:** Live in production | Active development
+**Status:** Live in Production | Active Development
 
 ---
 
@@ -26,27 +27,44 @@ Built as a software engineering portfolio project with commercial SaaS ambitions
 - **Technician dispatch and scheduling** with calendar visibility
 - **Property and unit management** with maintenance history
 - **Analytics dashboards** for maintenance activity and operational performance
-- **Secure read-only recruiter demo** for exploring the application
-- **123 passing automated tests** with 356 assertions
+- **One-click recruiter demo** with no password required
+- **130 passing automated tests** with 386 assertions
 - **Production deployment** using Laravel Cloud
 
 ---
 
 ## Live Demo
 
-**Application:** https://fixflow-production-tnpqsw.laravel.cloud
+### [Try FixFlow Enterprise Live](https://fixflow-production-tnpqsw.laravel.cloud/login)
 
-FixFlow includes a production demonstration environment populated with fictional property management data.
+FixFlow includes a publicly accessible, read-only demonstration environment populated with fictional property management data.
 
-The recruiter demo provides read-only access to the application's management dashboards and operational records.
+### How to Explore
 
-**Demo login email:** `demo@fixflow.com`
+1. Open the [live application](https://fixflow-production-tnpqsw.laravel.cloud/login).
+2. Click **Try Live Demo →**.
+3. Explore the platform immediately — no account registration or password required.
 
-**Password:** Available privately upon request.
+The demonstration includes:
 
-Demo viewers can explore properties, maintenance requests, dispatch operations, scheduling, technician workload, and analytics without permission to modify application data.
+- Maintenance Requests Dashboard
+- Property and Unit Management
+- Technician Dispatch Board
+- Maintenance Calendar
+- Technician Workload
+- Maintenance Analytics
 
-**Security note:** The demonstration account uses backend authorization controls. Editing operations are restricted server-side, not merely hidden in the interface.
+### Demo Security
+
+The demonstration uses a dedicated `demo_viewer` role.
+
+Demo viewers can explore authorized company records but cannot create, edit, assign, or delete operational data.
+
+Access restrictions are enforced through backend authorization, not simply by hiding editing controls.
+
+The one-click login uses a POST endpoint with CSRF protection, rate limiting, active membership validation, and Laravel session regeneration.
+
+**Demo data is fictional and intended for portfolio evaluation.**
 
 ---
 
@@ -60,7 +78,7 @@ Demo viewers can explore properties, maintenance requests, dispatch operations, 
 - Search and filter maintenance records
 - Record work notes and activity history
 - Require completion notes when finishing repairs
-- Restrict unauthorized changes to work-order status, priority, and technician assignments
+- Restrict unauthorized changes to status, priority, and technician assignments
 
 ### 2. Property and Unit Management
 
@@ -99,25 +117,28 @@ Demo viewers can explore properties, maintenance requests, dispatch operations, 
 - Technician workload distribution
 - Property-level operational insights
 
-### 6. Recruiter Demo Mode
+### 6. One-Click Recruiter Demo
 
-A dedicated `demo_viewer` role allows prospective employers and reviewers to explore FixFlow without changing application data.
+FixFlow includes a passwordless demonstration entry point for recruiters and hiring managers.
 
-Demo Viewer functionality includes:
+The feature:
 
-- Access to authorized management dashboards
-- Read-only property and unit records
-- Read-only maintenance request details
-- Dispatch and scheduling visibility
-- Technician workload dashboards
-- Maintenance analytics
-- Backend restrictions against modifying work orders or assignments
+- Uses an existing dedicated demo account
+- Requires an active `demo_viewer` company membership
+- Rejects accounts without the appropriate membership
+- Uses a CSRF-protected POST request
+- Applies rate limiting to the demo login route
+- Regenerates the authentication session
+- Preserves regular administrator and technician login
+- Restricts demo users to read-only operations
+
+This allows employers to evaluate the application without requesting login credentials.
 
 ---
 
 ## Screenshots
 
-Screenshots of the live application will be added to demonstrate the interface and workflows.
+Application screenshots will be added to demonstrate the interface and workflows.
 
 Planned screenshots:
 
@@ -128,6 +149,7 @@ Planned screenshots:
 - Maintenance Calendar
 - Technician Workload
 - Maintenance Analytics
+- One-Click Demo Login
 
 ---
 
@@ -184,13 +206,15 @@ Company membership records determine which organizations a user can access and w
 
 Backend queries and authorization checks restrict access to company-specific records.
 
+A user can belong to more than one company, with permissions determined by active company memberships.
+
 This architecture helps prevent unauthorized access to maintenance information belonging to another organization.
 
 ---
 
 ## Roles and Permissions
 
-| Capability | Admin | Manager | Technician | Demo Viewer |
+| Capability | Administrator | Manager | Technician | Demo Viewer |
 |---|---|---|---|---|
 | View authorized maintenance records | Yes | Yes | Assigned jobs | Read-only |
 | Create and manage work orders | Yes | Yes | Restricted | No |
@@ -220,21 +244,58 @@ Implemented protections include:
 - Server-side request validation
 - Restrictions on unauthorized scheduling and assignments
 - Read-only demonstration access
+- CSRF protection on form submissions
+- Rate limiting for one-click demo authentication
+- Session regeneration following authentication
 - Automated tests for access control and company data isolation
 
 The application does not rely solely on frontend controls to prevent unauthorized operations.
 
 For example, demo viewers cannot modify technician assignments through direct HTTP requests, even if they attempt to bypass the interface.
 
+### Secure Demo Authentication
+
+The one-click recruiter demo follows this workflow:
+
+```text
+Recruiter opens FixFlow
+          |
+          v
+Clicks "Try Live Demo"
+          |
+          v
+POST /demo-login
+          |
+          v
+CSRF and rate-limit checks
+          |
+          v
+Find dedicated demo account
+          |
+          v
+Validate active demo_viewer membership
+          |
+          v
+Authenticate and regenerate session
+          |
+          v
+Redirect to Maintenance Dashboard
+          |
+          v
+Read-only access enforced by middleware
+```
+
+Unauthorized or inactive demo accounts cannot use this authentication shortcut.
+
 ---
 
 ## Automated Testing
 
-FixFlow includes automated feature tests covering application functionality, business rules, and authorization.
+FixFlow includes automated feature tests covering application functionality, business rules, authentication, and authorization.
 
 ### Latest Verified Results
 
-**123 tests passed — 356 assertions**
+**130 tests passed — 386 assertions**
 
 Test coverage includes:
 
@@ -248,6 +309,10 @@ Test coverage includes:
 - Maintenance analytics
 - Authentication and authorization
 - Read-only demo viewer restrictions
+- One-click demo authentication
+- Inactive demo account rejection
+- Unauthorized demo login prevention
+- Demo login rate limiting
 
 Run the complete test suite:
 
@@ -262,6 +327,12 @@ php artisan view:cache
 ```
 
 Both checks passed during the latest verified local release workflow.
+
+### Testing Environment
+
+Automated feature tests use an isolated in-memory SQLite database.
+
+This prevents test data from affecting the development or production MySQL databases.
 
 ---
 
@@ -340,7 +411,32 @@ Open the local address displayed in your terminal.
 php artisan test
 ```
 
-**Important:** Use fictional data for local development and demonstrations. Production credentials and environment secrets should never be committed to Git.
+**Important:** Use fictional data for local development and demonstrations. Production credentials and environment secrets must never be committed to Git.
+
+The public demo requires a separately provisioned demonstration account with an active `demo_viewer` membership.
+
+---
+
+## Production Deployment
+
+FixFlow Enterprise is deployed on Laravel Cloud.
+
+**Production URL:**
+
+https://fixflow-production-tnpqsw.laravel.cloud
+
+The deployment workflow includes:
+
+1. Develop and test changes locally.
+2. Run automated feature tests.
+3. Compile Blade templates.
+4. Review Git changes.
+5. Commit changes to the repository.
+6. Push to the `main` branch.
+7. Deploy through Laravel Cloud.
+8. Verify functionality in production.
+
+The one-click demo login was verified in production with a successful redirect to the Maintenance Requests dashboard.
 
 ---
 
@@ -358,13 +454,17 @@ Relational modeling for companies, users, memberships, properties, units, mainte
 
 Multi-tenant data isolation, role-based access control, company-scoped authorization, and protection against unauthorized updates.
 
+### Authentication Engineering
+
+Session-based authentication, CSRF protection, rate-limited public demo access, and active membership verification.
+
 ### Frontend Engineering
 
 Responsive Blade templates, reusable navigation components, management dashboards, filtering interfaces, and role-aware UI elements.
 
 ### Software Testing
 
-Automated feature tests covering business logic, workflow permissions, cross-company restrictions, and regression-sensitive functionality.
+Automated feature tests covering business logic, workflow permissions, cross-company restrictions, authentication, and regression-sensitive functionality.
 
 ### Deployment and Development Workflow
 
