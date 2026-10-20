@@ -94,6 +94,41 @@
             background: #0077ed;
         }
 
+        .demo-button {
+            background: #ffffff;
+            color: #0071e3;
+            border: 1px solid #0071e3;
+        }
+
+        .demo-button:hover {
+            background: #f0f7ff;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 26px 0;
+            color: #86868b;
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #e5e5e7;
+        }
+
+        .demo-description {
+            text-align: center;
+            color: #86868b;
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 12px 0 0;
+        }
+
         .error-box {
             padding: 13px;
             margin-bottom: 22px;
@@ -108,6 +143,12 @@
             color: #86868b;
             font-size: 12px;
             margin-top: 28px;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 28px;
+            }
         }
     </style>
 </head>
@@ -158,6 +199,21 @@
 
             <button type="submit">Sign In</button>
         </form>
+
+        <div class="divider">OR</div>
+
+        <form method="POST" action="{{ route('demo.login') }}">
+            @csrf
+
+            <button type="submit" class="demo-button">
+                Try Live Demo &rarr;
+            </button>
+        </form>
+
+        <p class="demo-description">
+            Explore FixFlow with a read-only demonstration account.
+            No password required.
+        </p>
 
         <div class="footer">
             FixFlow Property Management Platform

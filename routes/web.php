@@ -27,6 +27,12 @@ Route::post('/login', [LoginController::class, 'login'])
     ->middleware('guest')
     ->name('login.submit');
 
+// Public, rate-limited recruiter demo login.
+// The controller verifies an active demo_viewer membership.
+Route::post('/demo-login', [LoginController::class, 'demoLogin'])
+    ->middleware(['guest', 'throttle:5,1'])
+    ->name('demo.login');
+
 Route::middleware(['auth', \App\Http\Middleware\EnsureDemoViewerReadOnly::class])->group(function () {
 
     // Maintenance Operations Calendar
