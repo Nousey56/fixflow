@@ -280,13 +280,20 @@
         <div class="ff-nav-links" id="ff-nav-links">
 
             <a
+                id="ff-nav-overview"
                 href="{{ route('maintenance.index') }}"
                 class="{{ request()->routeIs('maintenance.index') ? 'ff-active' : '' }}"
+                @if (request()->routeIs('maintenance.index')) aria-current="page" @endif
             >
                 Overview
             </a>
 
-            <a href="{{ route('maintenance.index') }}#requests">
+            <a
+                id="ff-nav-requests"
+                href="{{ route('maintenance.index') }}#requests"
+                class="{{ request()->routeIs('maintenance.show') ? 'ff-active' : '' }}"
+                @if (request()->routeIs('maintenance.show')) aria-current="page" @endif
+            >
                 Requests
             </a>
 
@@ -384,6 +391,31 @@
     (function () {
         const toggle = document.getElementById('ff-mobile-toggle');
         const links = document.getElementById('ff-nav-links');
+
+        const overviewLink = document.getElementById('ff-nav-overview');
+        const requestsLink = document.getElementById('ff-nav-requests');
+        const isMaintenanceIndex = @json(request()->routeIs('maintenance.index'));
+        const isMaintenanceDetail = @json(request()->routeIs('maintenance.show'));
+
+        function updateMaintenanceNavigation() {
+            if (!overviewLink || !requestsLink) return;
+
+            const requestsActive = isMaintenanceDetail ||
+                (isMaintenanceIndex && window.location.hash === '#requests');
+            const overviewActive = isMaintenanceIndex && !requestsActive;
+
+            overviewLink.classList.toggle('ff-active', overviewActive);
+            requestsLink.classList.toggle('ff-active', requestsActive);
+
+            if (overviewActive) overviewLink.setAttribute('aria-current', 'page');
+            else overviewLink.removeAttribute('aria-current');
+
+            if (requestsActive) requestsLink.setAttribute('aria-current', 'page');
+            else requestsLink.removeAttribute('aria-current');
+        }
+
+        updateMaintenanceNavigation();
+        window.addEventListener('hashchange', updateMaintenanceNavigation);
 
         if (!toggle || !links) {
             return;
